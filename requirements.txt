@@ -7,3 +7,4 @@ psycopg2-binary==2.9.9
 Flask-Migrate==4.0.4
 gunicorn==21.2.0
 python-dotenv==1.0.0
+Flask-Babel==3.1.1
