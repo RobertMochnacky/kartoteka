@@ -1,24 +1,37 @@
 from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_login import LoginManager, login_required, current_user
+from flask_babel import Babel, gettext as _
 from models_user import Client, Activity
 from forms import ClientForm, ActivityForm
 from db_utils import get_user_session, get_auth_engine
 from models_auth import AuthUser
 from auth import auth_bp
 from sqlalchemy.orm import sessionmaker
-
 import os
 
 # Config
 AUTH_DB_URL = "postgresql://postgres:postgres@db:5432/authdb"
 auth_engine = get_auth_engine(AUTH_DB_URL)
 SessionAuth = sessionmaker(bind=auth_engine)
-auth_session = SessionAuth()  # global auth session
+auth_session = SessionAuth()
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "dev-secret-key")
 app.register_blueprint(auth_bp, url_prefix="/auth")
 
+# Babel setup
+app.config['BABEL_DEFAULT_LOCALE'] = 'en'
+app.config['BABEL_SUPPORTED_LOCALES'] = ['en', 'sk']
+babel = Babel(app)
+
+@babel.localeselector
+def get_locale():
+    lang = request.args.get('lang')
+    if lang in app.config['BABEL_SUPPORTED_LOCALES']:
+        return lang
+    return request.accept_languages.best_match(app.config['BABEL_SUPPORTED_LOCALES'])
+
+# Login manager
 login_manager = LoginManager()
 login_manager.login_view = "auth.login"
 login_manager.init_app(app)
@@ -40,7 +53,7 @@ def index():
 def list_clients():
     session = get_user_db()
     clients = session.query(Client).order_by(Client.created_at.desc()).all()
-    return render_template("clients.html", clients=clients)
+    return render_template("clients.html", clients=clients, _=_)
 
 @app.route("/clients/new", methods=["GET","POST"])
 @login_required
@@ -53,9 +66,9 @@ def new_client():
                         notes=form.notes.data.strip())
         session.add(client)
         session.commit()
-        flash("Client added", "success")
+        flash(_("Client added"), "success")
         return redirect(url_for("list_clients"))
-    return render_template("new_client.html", form=form)
+    return render_template("new_client.html", form=form, _=_)
 
 @app.route("/clients/<int:client_id>", methods=["GET","POST"])
 @login_required
@@ -63,7 +76,7 @@ def client_detail(client_id):
     session = get_user_db()
     client = session.query(Client).get(client_id)
     if not client:
-        flash("Client not found", "error")
+        flash(_("Client not found"), "error")
         return redirect(url_for("list_clients"))
     form = ActivityForm()
     if form.validate_on_submit():
@@ -73,10 +86,10 @@ def client_detail(client_id):
                        description=form.description.data.strip())
         session.add(act)
         session.commit()
-        flash("Activity added", "success")
+        flash(_("Activity added"), "success")
         return redirect(url_for("client_detail", client_id=client.id))
     activities = client.activities
-    return render_template("client_detail.html", client=client, activities=activities, form=form)
+    return render_template("client_detail.html", client=client, activities=activities, form=form, _=_)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
