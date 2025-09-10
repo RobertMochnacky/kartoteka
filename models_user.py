@@ -1,24 +1,23 @@
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import declarative_base
-from flask_login import UserMixin
-from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import Column, Integer, String, Date, Text, ForeignKey, DateTime, func
+from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()
 
-class AuthUser(UserMixin, Base):
-    __tablename__ = "users"
+class Client(Base):
+    __tablename__ = "clients"
     id = Column(Integer, primary_key=True)
-    username = Column(String(64), unique=True, nullable=False)
-    email = Column(String(120), unique=True, nullable=False)
-    password_hash = Column(String(128), nullable=False)
-    role = Column(String(20), default="user")  # admin/user
-    db_name = Column(String(64), nullable=False)  # user's personal DB
+    name = Column(String(255), nullable=False)
+    contact = Column(String(255))
+    notes = Column(Text)
+    created_at = Column(DateTime, server_default=func.now())
 
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
+    activities = relationship("Activity", backref="client", cascade="all, delete-orphan")
 
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
-
-    def is_admin(self):
-        return self.role == "admin"
+class Activity(Base):
+    __tablename__ = "activities"
+    id = Column(Integer, primary_key=True)
+    client_id = Column(Integer, ForeignKey("clients.id"), nullable=False)
+    activity_date = Column(Date, nullable=False)
+    person_name = Column(String(255))
+    description = Column(Text, nullable=False)
+    created_at = Column(DateTime, server_default=func.now())
