@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Client: {{ client.name }}</h2>
+<p>Contact: {{ client.contact }}</p>
+<p>Notes: {{ client.notes }}</p>
+
+<h3>Activities</h3>
+<table>
+  <tr>
+    <th>Date</th>
+    <th>Person</th>
+    <th>Description</th>
+  </tr>
+  {% for a in activities %}
+  <tr>
+    <td>{{ a.activity_date }}</td>
+    <td>{{ a.person_name }}</td>
+    <td>{{ a.description }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<h3>Add Activity</h3>
+<form method="post">
+  {{ form.hidden_tag() }}
+  <p>{{ form.activity_date.label }}<br>{{ form.activity_date() }}</p>
+  <p>{{ form.person_name.label }}<br>{{ form.person_name() }}</p>
+  <p>{{ form.description.label }}<br>{{ form.description() }}</p>
+  <p>{{ form.submit() }}</p>
+</form>
+{% endblock %}
