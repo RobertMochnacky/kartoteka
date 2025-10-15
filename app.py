@@ -9,7 +9,6 @@ from auth import auth_bp
 from sqlalchemy.orm import sessionmaker
 import os
 
-# Config
 AUTH_DB_URL = "postgresql://postgres:postgres@db:5432/authdb"
 auth_engine = get_auth_engine(AUTH_DB_URL)
 SessionAuth = sessionmaker(bind=auth_engine)
@@ -19,7 +18,6 @@ app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "dev-secret-key")
 app.register_blueprint(auth_bp, url_prefix="/auth")
 
-# Babel setup
 app.config['BABEL_DEFAULT_LOCALE'] = 'en'
 app.config['BABEL_SUPPORTED_LOCALES'] = ['en', 'sk']
 babel = Babel(app)
@@ -31,7 +29,6 @@ def get_locale():
         return lang
     return request.accept_languages.best_match(app.config['BABEL_SUPPORTED_LOCALES'])
 
-# Login manager
 login_manager = LoginManager()
 login_manager.login_view = "auth.login"
 login_manager.init_app(app)
@@ -40,7 +37,6 @@ login_manager.init_app(app)
 def load_user(user_id):
     return auth_session.query(AuthUser).get(int(user_id))
 
-# Dynamic user DB session
 def get_user_db():
     return get_user_session(f"postgresql://postgres:postgres@db:5432/{current_user.db_name}")
 
