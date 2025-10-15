@@ -1,27 +1,10 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, scoped_session
-from models_user import Base as UserBase
-import psycopg2
+from sqlalchemy.orm import sessionmaker
 
-def create_user_db(user_db_name, db_url="postgresql://postgres:postgres@db:5432/postgres"):
-    conn = psycopg2.connect(db_url)
-    conn.autocommit = True
-    cur = conn.cursor()
-    cur.execute(f'CREATE DATABASE {user_db_name}')
-    cur.close()
-    conn.close()
+def get_auth_engine():
+    # Replace with your real database URI
+    return create_engine("postgresql://user:password@localhost/auth_db")
 
-def init_user_db(user_db_url):
-    engine = create_engine(user_db_url)
-    UserBase.metadata.create_all(engine)
-
-def get_user_session(user_db_url):
-    engine = create_engine(user_db_url)
-    Session = scoped_session(sessionmaker(bind=engine))
-    return Session
-
-def get_auth_engine(auth_db_url):
-    from models_auth import Base
-    engine = create_engine(auth_db_url)
-    Base.metadata.create_all(engine)
-    return engine
+def get_user_session(engine):
+    Session = sessionmaker(bind=engine)
+    return Session()
