@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
 <h2>Login</h2>
-<form method="post">
+<form method="POST">
   {{ form.hidden_tag() }}
-  <p>{{ form.username.label }}<br>{{ form.username() }}</p>
-  <p>{{ form.password.label }}<br>{{ form.password() }}</p>
-  <p>{{ form.submit() }}</p>
+  <div class="mb-3">{{ form.email.label }} {{ form.email(class="form-control") }}</div>
+  <div class="mb-3">{{ form.password.label }} {{ form.password(class="form-control") }}</div>
+  {{ form.submit(class="btn btn-primary") }}
 </form>
-<p>Don't have an account? Contact an admin.</p>
+<p>Don’t have an account? <a href="{{ url_for('auth.register') }}">Register</a></p>
 {% endblock %}
