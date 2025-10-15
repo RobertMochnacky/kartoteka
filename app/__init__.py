@@ -39,4 +39,4 @@ def create_app():
     from .main import main_bp
     app.register_blueprint(main_bp)
 
-return app
+    return app
