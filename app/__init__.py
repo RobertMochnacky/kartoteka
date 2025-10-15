@@ -4,7 +4,6 @@ from flask_login import LoginManager
 from flask_migrate import Migrate, upgrade
 from dotenv import load_dotenv
 import os
-import subprocess
 from sqlalchemy import inspect
 
 load_dotenv()  # load .env
