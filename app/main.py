@@ -6,6 +6,11 @@ from .models import User, Customer
 
 main_bp = Blueprint("main", __name__)
 
+@main_bp.route("/test")
+def test():
+    return "Flask is working!"
+
+
 @main_bp.route("/dashboard")
 @login_required
 def dashboard():
