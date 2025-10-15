@@ -1,38 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Customer</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <h1>Add Customer</h1>
+{% extends "base.html" %}
 
-    <form method="POST" action="{{ url_for('main.add_customer') }}">
-        <div>
-            <label for="name">Customer Name:</label>
-            <input type="text" id="name" name="name" required>
-        </div>
+{% block title %}Add Customer{% endblock %}
 
-        <div>
-            <label for="email">Customer Email:</label>
-            <input type="email" id="email" name="email" required>
-        </div>
+{% block content %}
+<h2>Add New Customer</h2>
 
-        <button type="submit">Add Customer</button>
-    </form>
+<form method="POST" action="{{ url_for('main.add_customer') }}">
+    <div class="form-group">
+        <label for="name">Customer Name</label>
+        <input type="text" class="form-control" id="name" name="name" required>
+    </div>
+    <div class="form-group mt-2">
+        <label for="email">Email</label>
+        <input type="email" class="form-control" id="email" name="email" required>
+    </div>
+    <button type="submit" class="btn btn-primary mt-3">Add Customer</button>
+    <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary mt-3">Cancel</a>
+</form>
 
-    <p><a href="{{ url_for('main.dashboard') }}">Back to Dashboard</a></p>
-
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-        <ul>
-        {% for message in messages %}
-            <li>{{ message }}</li>
-        {% endfor %}
-        </ul>
-    {% endif %}
-    {% endwith %}
-</body>
-</html>
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+    <ul class="alert alert-info mt-2">
+    {% for message in messages %}
+        <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+{% endif %}
+{% endwith %}
+{% endblock %}
