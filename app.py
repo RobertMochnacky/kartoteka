@@ -2,48 +2,54 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
-from flask_wtf.csrf import CSRFProtect
 from flask_babel import Babel
+from flask_wtf.csrf import CSRFProtect
+import os
 
-from db_utils import get_auth_engine, get_user_session
-
-# Extensions
+# --- Extensions ---
 db = SQLAlchemy()
 migrate = Migrate()
 login_manager = LoginManager()
-csrf = CSRFProtect()
 babel = Babel()
+csrf = CSRFProtect()
 
-# Auth session
-auth_engine = get_auth_engine()
-auth_session = get_user_session(auth_engine)
-
-def create_app(config_class='config.Config'):
-    # Import config
-    module_name, class_name = config_class.rsplit('.', 1)
-    mod = __import__(module_name, fromlist=[class_name])
-    config_class = getattr(mod, class_name)
-
+# --- App Factory ---
+def create_app():
     app = Flask(__name__)
-    app.config.from_object(config_class)
 
-    # Initialize extensions
+    # --- Configuration ---
+    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'super-secret-key')
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
+        'DATABASE_URL', 'postgresql://user:password@db/auth_db'
+    )
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+    # --- Initialize extensions ---
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
-    csrf.init_app(app)
     babel.init_app(app)
+    csrf.init_app(app)
 
-    # Blueprints
+    login_manager.login_view = 'auth.login'
+
+    # --- Import models ---
+    from models import User
+
+    # --- User loader for Flask-Login ---
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
+
+    # --- Blueprints ---
     from auth import auth_bp
-    app.register_blueprint(auth_bp)
+    from routes import main_bp  # if you have a routes.py for general pages
 
-    # Import other blueprints here if needed
-    # from views import main_bp
-    # app.register_blueprint(main_bp)
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(main_bp)
 
     return app
 
-if __name__ == "__main__":
-    app = create_app()
-    app.run(host="0.0.0.0", port=5000, debug=True)
+
+# --- Create app for Gunicorn ---
+app = create_app()
