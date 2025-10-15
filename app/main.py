@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template
 from flask_login import login_required, current_user
 # app/main.py
-from .models import User, Customer
+from .models import Customer
 
 
 main_bp = Blueprint("main", __name__)
@@ -9,6 +9,10 @@ main_bp = Blueprint("main", __name__)
 #@main_bp.route("/dashboard")
 #def dashboard():
 #    return "<h1>Dashboard works!</h1>"
+
+@main_bp.route("/")
+def index():
+    return render_template("index.html")  # Landing page
 
 @main_bp.route("/dashboard")
 @login_required
