@@ -6,7 +6,6 @@ from auth import auth_bp
 from routes import routes_bp
 import os
 from customers import customers_bp
-app.register_blueprint(customers_bp)
 
 def create_app():
     app = Flask(__name__)
@@ -26,6 +25,7 @@ def create_app():
 
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(routes_bp)
+    app.register_blueprint(customers_bp)
 
     return app
 
