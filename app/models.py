@@ -21,12 +21,15 @@ class Customer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128), nullable=False)
     email = db.Column(db.String(150), nullable=False, unique=True)
-    activities = db.relationship("ActivityReport", backref="customer", lazy=True)
+    activities = db.relationship("Activity", back_populates="customer", cascade="all, delete-orphan")
 
 
-class ActivityReport(db.Model):
-    __tablename__ = "activity_reports"
+class Activity(db.Model):
+    __tablename__ = "activities"
     id = db.Column(db.Integer, primary_key=True)
-    text = db.Column(db.String(256), nullable=False)
-    customer_id = db.Column(db.Integer, db.ForeignKey("customers.id"))
-    creator_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    text = db.Column(db.String(255), nullable=False)
+    customer_id = db.Column(db.Integer, db.ForeignKey("customers.id"), nullable=False)
+    creator_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+
+    customer = db.relationship("Customer", back_populates="activities")
+    creator = db.relationship("User")
