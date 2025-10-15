@@ -36,7 +36,3 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for("auth.login"))
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
