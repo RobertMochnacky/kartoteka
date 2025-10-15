@@ -39,26 +39,4 @@ def create_app():
     from .main import main_bp
     app.register_blueprint(main_bp)
 
-    # --- Automatic DB / migrations handling ---
-    with app.app_context():
-        migrations_folder = os.path.join(os.path.dirname(__file__), "migrations")
-
-        if not os.path.isdir(migrations_folder):
-            print("Migrations folder not found. Initializing Alembic...")
-            subprocess.run(["flask", "db", "init"], check=True)
-            subprocess.run(["flask", "db", "migrate", "-m", "Initial migration"], check=True)
-            subprocess.run(["flask", "db", "upgrade"], check=True)
-            print("Database initialized and initial migration applied.")
-        else:
-            # Check for missing tables
-            inspector = inspect(db.engine)
-            required_tables = ["users", "customers", "activities"]
-            missing_tables = [t for t in required_tables if not inspector.has_table(t)]
-            if missing_tables:
-                print(f"Missing tables detected: {missing_tables}. Running migrations...")
-                upgrade()
-            else:
-                print("All required tables exist. Applying any pending migrations...")
-                upgrade()
-
-    return app
+return app
