@@ -8,6 +8,7 @@ services:
       - .env
     depends_on:
       - db
+    command: flask run --host=0.0.0.0 --port=5000
 
   db:
     image: postgres:16
