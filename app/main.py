@@ -28,9 +28,38 @@ def add_customer():
     if request.method == "POST":
         name = request.form["name"]
         email = request.form["email"]
+
+        if not name or not email:
+            flash("Name and Email are required!")
+            return redirect(url_for("main.add_customer"))
+            
         customer = Customer(name=name, email=email)
         db.session.add(customer)
         db.session.commit()
-        flash("Customer added!")
+        flash("Customer added successfully!")
         return redirect(url_for("main.dashboard"))
+        
     return render_template("add_customer.html")
+
+@main_bp.route("/edit_customer/<int:customer_id>", methods=["GET", "POST"])
+@login_required
+def edit_customer(customer_id):
+    customer = Customer.query.get_or_404(customer_id)
+
+    if request.method == "POST":
+        customer.name = request.form["name"]
+        customer.email = request.form["email"]
+        db.session.commit()
+        flash("Customer updated!")
+        return redirect(url_for("main.dashboard"))
+
+    return render_template("edit_customer.html", customer=customer)
+
+@main_bp.route("/delete_customer/<int:customer_id>")
+@login_required
+def delete_customer(customer_id):
+    customer = Customer.query.get_or_404(customer_id)
+    db.session.delete(customer)
+    db.session.commit()
+    flash("Customer deleted!")
+    return redirect(url_for("main.dashboard"))
