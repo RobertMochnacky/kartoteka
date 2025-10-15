@@ -15,3 +15,18 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+class Customer(db.Model):
+    __tablename__ = "customers"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128), nullable=False)
+    email = db.Column(db.String(128))
+    activities = db.relationship("ActivityReport", backref="customer", lazy=True)
+
+class ActivityReport(db.Model):
+    __tablename__ = "activity_reports"
+    id = db.Column(db.Integer, primary_key=True)
+    customer_id = db.Column(db.Integer, db.ForeignKey("customers.id"), nullable=False)
+    creator_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    description = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
