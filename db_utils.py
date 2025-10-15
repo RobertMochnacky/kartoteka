@@ -4,7 +4,6 @@ from models_user import Base as UserBase
 import psycopg2
 
 def create_user_db(user_db_name, db_url="postgresql://postgres:postgres@db:5432/postgres"):
-    """Create a new database for the user"""
     conn = psycopg2.connect(db_url)
     conn.autocommit = True
     cur = conn.cursor()
@@ -20,3 +19,9 @@ def get_user_session(user_db_url):
     engine = create_engine(user_db_url)
     Session = scoped_session(sessionmaker(bind=engine))
     return Session
+
+def get_auth_engine(auth_db_url):
+    from models_auth import Base
+    engine = create_engine(auth_db_url)
+    Base.metadata.create_all(engine)
+    return engine
