@@ -27,14 +27,14 @@ def new_customer():
         db.session.commit()
         flash('Customer added successfully!', 'success')
         return redirect(url_for('customers'))
-    return render_template('add_customer.html', form=form)
+    return render_template('new_customer.html', form=form)
 
 @app.route('/customer/<int:customer_id>/activities')
 @login_required
 def customer_activities(customer_id):
     customer = Customer.query.get_or_404(customer_id)
     activities = ActivityReport.query.filter_by(customer_id=customer.id).all()
-    return render_template('customer_activities.html', customer=customer, activities=activities)
+    return render_template('activities.html', customer=customer, activities=activities)
 
 @app.route('/activity/new/<int:customer_id>', methods=['GET', 'POST'])
 @login_required
@@ -47,4 +47,4 @@ def new_activity(customer_id):
         db.session.commit()
         flash('Activity added successfully!', 'success')
         return redirect(url_for('customer_activities', customer_id=customer.id))
-    return render_template('add_activity.html', form=form, customer=customer)
+    return render_template('new_activity.html', form=form, customer=customer)
