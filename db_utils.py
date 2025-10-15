@@ -1,9 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from config import Config
 
 def get_auth_engine():
-    # Replace with your real database URI
-    return create_engine("postgresql://user:password@localhost/auth_db")
+    return create_engine(Config.AUTH_DATABASE_URI)
 
 def get_user_session(engine):
     Session = sessionmaker(bind=engine)
