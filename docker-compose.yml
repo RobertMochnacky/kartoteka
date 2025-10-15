@@ -8,6 +8,8 @@ services:
     environment:
       - FLASK_ENV=development
       - DATABASE_URL=postgresql://user:password@db/auth_db
+      - AUTH_DATABASE_URL=postgresql://user:password@db/auth_db
+      - SECRET_KEY=supersecretkey
     depends_on:
       - db
 
