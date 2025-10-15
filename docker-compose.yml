@@ -4,14 +4,15 @@ services:
   web:
     build: .
     ports:
-      - "5000:5000"
+      - "5000:5000"   # host:container mapping
     environment:
-      - FLASK_ENV=development
+      - FLASK_ENV=production
       - DATABASE_URL=postgresql://user:password@db/auth_db
       - AUTH_DATABASE_URL=postgresql://user:password@db/auth_db
       - SECRET_KEY=supersecretkey
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   db:
     image: postgres:13
@@ -21,6 +22,11 @@ services:
       POSTGRES_DB: auth_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:
