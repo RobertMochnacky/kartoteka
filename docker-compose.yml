@@ -17,6 +17,8 @@ services:
     depends_on:
       - db
     command: gunicorn -w 2 -b 0.0.0.0:5000 wsgi:app
+    volumes:
+      - ./migrations:/app/migrations
 
 volumes:
   postgres_data:
