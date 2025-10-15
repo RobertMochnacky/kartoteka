@@ -1,9 +1,10 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
-from flask_migrate import Migrate
+from flask_migrate import Migrate, upgrade
 from dotenv import load_dotenv
 import os
+from sqlalchemy import inspect
 
 load_dotenv()  # load .env
 
@@ -22,8 +23,8 @@ def create_app():
     login_manager.init_app(app)
     migrate.init_app(app, db)
 
-    # Import User model here to avoid circular imports
-    from .models import User
+    # Import models here to avoid circular imports
+    from .models import User, Customer, Activity
 
     # Flask-Login user loader
     @login_manager.user_loader
@@ -36,5 +37,16 @@ def create_app():
 
     from .main import main_bp
     app.register_blueprint(main_bp)
+
+    # --- DB check / auto-migrate ---
+    with app.app_context():
+        inspector = inspect(db.engine)
+        required_tables = ["users", "customers", "activities"]
+        missing_tables = [t for t in required_tables if not inspector.has_table(t)]
+        if missing_tables:
+            print(f"Missing tables detected: {missing_tables}. Running migrations...")
+            upgrade()
+        else:
+            print("All required tables exist.")
 
     return app
