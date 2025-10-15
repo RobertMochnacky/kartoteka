@@ -4,6 +4,7 @@ from flask_login import LoginManager
 from flask_migrate import Migrate, upgrade
 from dotenv import load_dotenv
 import os
+import subprocess
 from sqlalchemy import inspect
 
 load_dotenv()  # load .env
@@ -38,15 +39,26 @@ def create_app():
     from .main import main_bp
     app.register_blueprint(main_bp)
 
-    # --- DB check / auto-migrate ---
+    # --- Automatic DB / migrations handling ---
     with app.app_context():
-        inspector = inspect(db.engine)
-        required_tables = ["users", "customers", "activities"]
-        missing_tables = [t for t in required_tables if not inspector.has_table(t)]
-        if missing_tables:
-            print(f"Missing tables detected: {missing_tables}. Running migrations...")
-            upgrade()
+        migrations_folder = os.path.join(os.path.dirname(__file__), "migrations")
+
+        if not os.path.isdir(migrations_folder):
+            print("Migrations folder not found. Initializing Alembic...")
+            subprocess.run(["flask", "db", "init"], check=True)
+            subprocess.run(["flask", "db", "migrate", "-m", "Initial migration"], check=True)
+            subprocess.run(["flask", "db", "upgrade"], check=True)
+            print("Database initialized and initial migration applied.")
         else:
-            print("All required tables exist.")
+            # Check for missing tables
+            inspector = inspect(db.engine)
+            required_tables = ["users", "customers", "activities"]
+            missing_tables = [t for t in required_tables if not inspector.has_table(t)]
+            if missing_tables:
+                print(f"Missing tables detected: {missing_tables}. Running migrations...")
+                upgrade()
+            else:
+                print("All required tables exist. Applying any pending migrations...")
+                upgrade()
 
     return app
