@@ -1,15 +1,18 @@
 {% extends "base.html" %}
+
 {% block title %}Dashboard{% endblock %}
+
 {% block content %}
-<h2>Welcome, {{ user.username }}!</h2>
+<h2>Welcome, {{ current_user.username }}!</h2>
 <p>This is your dashboard.</p>
 
 <h3>Customers & Activities</h3>
+
 {% if customers %}
     <ul class="list-group">
     {% for customer in customers %}
         <li class="list-group-item">
-            <strong>{{ customer.name }}</strong>
+            <strong>{{ customer.name }}</strong> - {{ customer.email }}
             {% if customer.activities %}
                 <ul>
                 {% for act in customer.activities %}
@@ -19,6 +22,10 @@
             {% else %}
                 <p>No activities yet.</p>
             {% endif %}
+            <div>
+                <a href="{{ url_for('main.edit_customer', customer_id=customer.id) }}">Edit</a> |
+                <a href="{{ url_for('main.delete_customer', customer_id=customer.id) }}" onclick="return confirm('Are you sure?');">Delete</a>
+            </div>
         </li>
     {% endfor %}
     </ul>
@@ -26,7 +33,19 @@
     <p>No customers yet.</p>
 {% endif %}
 
-<p><a href="{{ url_for('main.add_customer') }}">Add New Customer</a></p>
-<p><a href="{{ url_for('auth.logout') }}">Logout</a></p>
+<div style="margin-top: 15px;">
+    <a href="{{ url_for('main.add_customer') }}" class="btn btn-primary">Add New Customer</a>
+    <a href="{{ url_for('auth.logout') }}" class="btn btn-secondary">Logout</a>
+</div>
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+    <ul class="alert alert-info mt-2">
+    {% for message in messages %}
+        <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+{% endif %}
+{% endwith %}
 
 {% endblock %}
