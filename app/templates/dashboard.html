@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h2>Welcome, {{ user.username }}!</h2>
+<p>This is your dashboard.</p>
+
+<h3>Customers & Activities</h3>
+{% if customers %}
+    <ul class="list-group">
+    {% for customer in customers %}
+        <li class="list-group-item">
+            <strong>{{ customer.name }}</strong>
+            {% if customer.activities %}
+                <ul>
+                {% for act in customer.activities %}
+                    <li>{{ act.text }} (created by {{ act.creator.username }})</li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p>No activities yet.</p>
+            {% endif %}
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No customers yet.</p>
+{% endif %}
+{% endblock %}
