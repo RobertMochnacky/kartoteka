@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Customer</title>
+</head>
+<body>
+    <h1>Edit Customer</h1>
+
+    <form method="POST">
+        <label>Name: 
+            <input type="text" name="name" value="{{ customer.name }}" required>
+        </label><br>
+        <label>Email: 
+            <input type="email" name="email" value="{{ customer.email }}" required>
+        </label><br>
+        <button type="submit">Update Customer</button>
+    </form>
+
+    <p><a href="{{ url_for('main.dashboard') }}">Back to Dashboard</a></p>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <ul>
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+    {% endwith %}
+</body>
+</html>
