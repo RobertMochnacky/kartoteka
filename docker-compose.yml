@@ -1,21 +1,24 @@
-version: "3.9"
+version: '3.8'
+
 services:
-  db:
-    image: postgres:15
-    restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    volumes:
-      - pg_data:/var/lib/postgresql/data
   web:
     build: .
-    command: gunicorn --bind 0.0.0.0:5000 app:app
-    volumes:
-      - .:/app
     ports:
       - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+      - DATABASE_URL=postgresql://user:password@db/auth_db
     depends_on:
       - db
+
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: auth_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
 volumes:
-  pg_data:
+  postgres_data:
