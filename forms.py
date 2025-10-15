@@ -18,6 +18,8 @@ class CustomerForm(FlaskForm):
     name = StringField("Customer Name", validators=[DataRequired()])
     email = StringField("Email")
     phone = StringField("Phone")
+    submit = SubmitField('Add Customer')
 
 class ActivityReportForm(FlaskForm):
-    description = StringField("Activity Description", validators=[DataRequired()])
+    content = TextAreaField('Activity', validators=[DataRequired()])
+    submit = SubmitField('Add Activity')
