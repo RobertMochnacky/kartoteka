@@ -7,25 +7,23 @@ from flask_babel import Babel
 
 from db_utils import get_auth_engine, get_user_session
 
-# ---------------------------
 # Extensions
-# ---------------------------
 db = SQLAlchemy()
 migrate = Migrate()
 login_manager = LoginManager()
 csrf = CSRFProtect()
 babel = Babel()
 
-# ---------------------------
 # Auth session
-# ---------------------------
 auth_engine = get_auth_engine()
 auth_session = get_user_session(auth_engine)
 
-# ---------------------------
-# Factory function
-# ---------------------------
 def create_app(config_class='config.Config'):
+    # Import config
+    module_name, class_name = config_class.rsplit('.', 1)
+    mod = __import__(module_name, fromlist=[class_name])
+    config_class = getattr(mod, class_name)
+
     app = Flask(__name__)
     app.config.from_object(config_class)
 
@@ -36,19 +34,16 @@ def create_app(config_class='config.Config'):
     csrf.init_app(app)
     babel.init_app(app)
 
-    # Import blueprints here to avoid circular import
+    # Blueprints
     from auth import auth_bp
     app.register_blueprint(auth_bp)
 
-    # Optionally, import other blueprints here
+    # Import other blueprints here if needed
     # from views import main_bp
     # app.register_blueprint(main_bp)
 
     return app
 
-# ---------------------------
-# Optional local run
-# ---------------------------
 if __name__ == "__main__":
     app = create_app()
     app.run(host="0.0.0.0", port=5000, debug=True)
