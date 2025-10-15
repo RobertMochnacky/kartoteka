@@ -22,6 +22,14 @@ def create_app():
     login_manager.init_app(app)
     migrate.init_app(app, db)
 
+    # Import User model here to avoid circular imports
+    from .models import User
+
+    # Flask-Login user loader
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
+    
     # Blueprints
     from .auth import auth_bp
     app.register_blueprint(auth_bp, url_prefix="/auth")
