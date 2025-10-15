@@ -1,7 +1,0 @@
-<h1>Activities for {{ customer.name }}</h1>
-<ul>
-{% for act in activities %}
-    <li>{{ act.created_at.strftime("%Y-%m-%d %H:%M") }} - {{ act.description }}</li>
-{% endfor %}
-</ul>
-<a href="{{ url_for('customers.list_customers') }}">Back to Customers</a>
