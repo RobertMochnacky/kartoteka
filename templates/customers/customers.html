@@ -1,0 +1,10 @@
+<h1>Customers</h1>
+<a href="{{ url_for('customers.new_customer') }}">Add New Customer</a>
+<ul>
+{% for customer in customers %}
+    <li>
+        {{ customer.name }} - <a href="{{ url_for('customers.list_activities', customer_id=customer.id) }}">Activities</a> -
+        <a href="{{ url_for('customers.new_activity', customer_id=customer.id) }}">Add Activity</a>
+    </li>
+{% endfor %}
+</ul>
