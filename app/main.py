@@ -194,8 +194,20 @@ def activities():
 @main_bp.route("/customers")
 @login_required
 def customers():
-    customers = Customer.query.all()
-    return render_template("customers.html", customers=customers)
+    search_query = request.args.get("q", "", type=str)
+
+    query = Customer.query
+    if search_query:
+        query = query.filter(
+            or_(
+                Customer.name.ilike(f"%{search_query}%"),
+                Customer.email.ilike(f"%{search_query}%"),
+                Customer.phone.ilike(f"%{search_query}%")
+            )
+        )
+
+    customers = query.order_by(Customer.name).all()
+    return render_template("customers.html", customers=customers, search_query=search_query)
 
 @main_bp.route("/customer/<int:customer_id>")
 @login_required
