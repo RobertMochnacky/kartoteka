@@ -19,7 +19,6 @@
             border-right: 1px solid #ddd;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
         }
         .sidebar a {
             display: block;
@@ -27,6 +26,7 @@
             color: #333;
             text-decoration: none;
             border-left: 4px solid transparent;
+            margin-bottom: 2px;
         }
         .sidebar a.active {
             background-color: #e9ecef;
@@ -36,6 +36,10 @@
         .sidebar a:hover {
             background-color: #e9ecef;
             text-decoration: none;
+        }
+        .sidebar .bottom-link {
+            margin-top: auto; /* push to bottom */
+            margin-bottom: 20px;
         }
         .content {
             margin-left: 230px; /* space for sidebar */
@@ -67,7 +71,7 @@
 </nav>
 
 <!-- Left Sidebar -->
-<div class="sidebar d-flex flex-column">
+<div class="sidebar">
     <!-- Top links -->
     <div>
         <a href="{{ url_for('main.dashboard') }}" class="{% if request.endpoint == 'main.dashboard' %}active{% endif %}">Dashboard</a>
@@ -77,7 +81,7 @@
     </div>
 
     <!-- Bottom Settings link -->
-    <div class="mt-3">
+    <div class="bottom-link">
         <a href="{{ url_for('main.settings') }}" class="{% if request.endpoint == 'main.settings' %}active{% endif %}">⚙️ Settings</a>
     </div>
 </div>
