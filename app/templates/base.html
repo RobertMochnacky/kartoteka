@@ -67,7 +67,7 @@
 </nav>
 
 <!-- Left Sidebar -->
-<div class="sidebar">
+<div class="sidebar d-flex flex-column">
     <!-- Top links -->
     <div>
         <a href="{{ url_for('main.dashboard') }}" class="{% if request.endpoint == 'main.dashboard' %}active{% endif %}">Dashboard</a>
@@ -77,7 +77,7 @@
     </div>
 
     <!-- Bottom Settings link -->
-    <div class="mb-3">
+    <div class="mt-3">
         <a href="{{ url_for('main.settings') }}" class="{% if request.endpoint == 'main.settings' %}active{% endif %}">⚙️ Settings</a>
     </div>
 </div>
