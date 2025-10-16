@@ -170,11 +170,15 @@ def edit_activity(activity_id):
 
     return render_template("edit_activity.html", activity=activity, customers=customers)
 
-@main_bp.route("/customer/<int:customer_id>")
+# Delete an activity
+@main_bp.route("/delete_activity/<int:activity_id>", methods=["POST", "GET"])
 @login_required
-def view_customer(customer_id):
-    customer = Customer.query.get_or_404(customer_id)
-    return render_template("view_customer.html", customer=customer)
+def delete_activity(activity_id):
+    activity = Activity.query.get_or_404(activity_id)
+    db.session.delete(activity)
+    db.session.commit()
+    flash("Activity deleted successfully.", "success")
+    return redirect(url_for("main.activities"))
 
 @main_bp.route("/activities")
 @login_required
@@ -209,3 +213,9 @@ def activities():
 def customers():
     customers = Customer.query.all()
     return render_template("customers.html", customers=customers)
+
+@main_bp.route("/customer/<int:customer_id>")
+@login_required
+def view_customer(customer_id):
+    customer = Customer.query.get_or_404(customer_id)
+    return render_template("view_customer.html", customer=customer)
