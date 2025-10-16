@@ -21,11 +21,31 @@ def index():
 @login_required
 def dashboard():
     customers = Customer.query.all()
-    # Show recent 5 activities
-    activities = Activity.query.join(Customer).join(User)\
-        .order_by(Activity.timestamp.desc())\
-        .limit(5).all()
-    return render_template("dashboard.html", customers=customers, activities=activities)
+
+    # Get number of recent activities from query parameter, default 5
+    try:
+        limit = int(request.args.get("recent_limit", 5))
+    except ValueError:
+        limit = 5
+
+    # Ensure limit is one of the allowed values
+    if limit not in [5, 10, 15, 20, 30]:
+        limit = 5
+
+    activities = (
+        Activity.query.join(Customer)
+        .join(User)
+        .order_by(Activity.timestamp.desc())
+        .limit(limit)
+        .all()
+    )
+
+    return render_template(
+        "dashboard.html",
+        customers=customers,
+        activities=activities,
+        recent_limit=limit
+    )
 
 @main_bp.route("/add_customer", methods=["GET", "POST"])
 @login_required
