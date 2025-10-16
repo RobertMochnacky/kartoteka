@@ -211,8 +211,8 @@ def add_customer():
         phone = request.form.get("phone") or "0000 000 000"  # default if empty
         address = request.form.get("address") or "Unknown"    # default if empty
 
-        if not name or not email:
-            flash("Name and Email are required!")
+        if not name:
+            flash("Name field is required!")
             return redirect(url_for("main.add_customer"))
             
         customer = Customer(
