@@ -44,7 +44,10 @@ def dashboard():
         "dashboard.html",
         customers=customers,
         activities=activities,
-        recent_limit=limit
+        recent_limit=limit,
+        primary_color=current_user.primary_color,
+        sidebar_bg_color=current_user.sidebar_bg_color,
+        text_color=current_user.text_color
     )
 
 ###################
