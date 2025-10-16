@@ -71,7 +71,7 @@
 </nav>
 
 <!-- Left Sidebar -->
-<div class="sidebar">
+<div class="sidebar d-flex flex-column" style="justify-content: space-between; height: 100%;">
     <!-- Top links -->
     <div>
         <a href="{{ url_for('main.dashboard') }}" class="{% if request.endpoint == 'main.dashboard' %}active{% endif %}">Dashboard</a>
@@ -80,11 +80,12 @@
         <a href="{{ url_for('main.activities') }}" class="{% if request.endpoint == 'main.activities' %}active{% endif %}">Activities</a>
     </div>
 
-    <!-- Bottom Settings link -->
-    <div class="bottom-link">
+    <!-- Bottom link always at the bottom -->
+    <div>
         <a href="{{ url_for('main.settings') }}" class="{% if request.endpoint == 'main.settings' %}active{% endif %}">⚙️ Settings</a>
     </div>
 </div>
+
 
 <!-- Main Content -->
 <div class="content">
