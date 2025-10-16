@@ -7,33 +7,34 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
 
+  <!-- Dynamic color variables from user preferences -->
   <style>
     :root {
+      --primary-color: {{ primary_color or '#3a86ff' }};
+      --sidebar-bg-light: {{ sidebar_bg_color or '#fff' }};
+      --sidebar-bg-dark: #2b2b3d;
+      --text-dark: {{ text_color or '#212529' }};
+      --text-light: #eee;
+      --hover-light: #f1f3f5;
+      --hover-dark: #3b3b4f;
       --sidebar-width: 230px;
       --sidebar-collapsed-width: 70px;
-      --primary-color: #3a86ff;
-      --bg-light: #f7f8fa;
-      --bg-dark: #1e1e2f;
-      --text-dark: #212529;
-      --text-light: #eee;
-      --sidebar-bg-light: #fff;
-      --sidebar-bg-dark: #2b2b3d;
-      --hover-light: #e9f2ff;
-      --hover-dark: #3b3b4f;
     }
+  </style>
 
+  <style>
     body {
       font-family: "Inter", "Segoe UI", sans-serif;
       margin: 0;
       height: 100vh;
       overflow: hidden;
-      background-color: var(--bg-light);
-      color: var(--text-dark);
       transition: background-color 0.3s ease, color 0.3s ease;
+      background-color: #f9f9fb;
+      color: var(--text-dark);
     }
 
     body.dark-mode {
-      background-color: var(--bg-dark);
+      background-color: #1e1e2f;
       color: var(--text-light);
     }
 
@@ -46,10 +47,12 @@
       z-index: 1030;
       transition: background-color 0.3s ease, color 0.3s ease;
     }
+
     body.dark-mode .navbar {
       background-color: #2b2b3d;
-      border-bottom-color: #444;
+      border-bottom: 1px solid #444;
     }
+
     .navbar-brand {
       color: var(--primary-color) !important;
       font-weight: 600;
@@ -68,13 +71,14 @@
       flex-direction: column;
       justify-content: space-between;
       padding: 10px 0;
-      overflow: hidden;
       transition: width 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+      overflow: hidden;
       z-index: 1020;
     }
+
     body.dark-mode .sidebar {
       background-color: var(--sidebar-bg-dark);
-      border-right-color: #444;
+      border-right: 1px solid #444;
     }
 
     .sidebar.collapsed {
@@ -82,7 +86,7 @@
     }
 
     .sidebar a {
-      color: inherit;
+      color: var(--text-dark);
       text-decoration: none;
       display: flex;
       align-items: center;
@@ -94,32 +98,35 @@
       white-space: nowrap;
     }
 
-    .sidebar a i {
-      font-size: 18px;
-      min-width: 20px;
-      text-align: center;
-      color: #495057; /* dark icon for light mode */
-    }
-    body.dark-mode .sidebar a i {
-      color: #ddd; /* light icon for dark mode */
+    body.dark-mode .sidebar a {
+      color: var(--text-light);
     }
 
     .sidebar a:hover {
       background-color: var(--hover-light);
     }
+
     body.dark-mode .sidebar a:hover {
       background-color: var(--hover-dark);
     }
 
     .sidebar a.active {
-      background-color: #d0e4ff;
+      background-color: #e9f2ff;
       border-left: 3px solid var(--primary-color);
-      color: var(--primary-color);
       font-weight: 500;
+      color: var(--primary-color);
     }
+
     body.dark-mode .sidebar a.active {
       background-color: #3b3b4f;
       color: var(--primary-color);
+    }
+
+    .sidebar i {
+      font-size: 18px;
+      min-width: 20px;
+      text-align: center;
+      color: inherit;
     }
 
     .sidebar.collapsed a span {
@@ -129,9 +136,11 @@
     .sidebar-bottom {
       border-top: 1px solid #e0e0e0;
       padding-top: 10px;
+      transition: border-color 0.3s ease;
     }
+
     body.dark-mode .sidebar-bottom {
-      border-top-color: #444;
+      border-top: 1px solid #444;
     }
 
     /* Content */
@@ -142,11 +151,13 @@
       overflow-y: auto;
       transition: margin-left 0.3s ease, background-color 0.3s ease, color 0.3s ease;
     }
+
     .sidebar.collapsed ~ .content {
       margin-left: var(--sidebar-collapsed-width);
     }
+
     body.dark-mode .content {
-      background-color: var(--bg-dark);
+      background-color: #1e1e2f;
       color: var(--text-light);
     }
 
@@ -154,12 +165,13 @@
     .btn-primary {
       background-color: var(--primary-color);
       border: none;
-    }
-    .btn-primary:hover {
-      background-color: #2e6ed3;
+      color: #fff;
     }
 
-    /* Sidebar toggle button */
+    .btn-primary:hover {
+      background-color: darken(var(--primary-color), 10%);
+    }
+
     .toggle-btn {
       border: none;
       background: none;
@@ -169,16 +181,15 @@
       margin-right: 15px;
       transition: color 0.3s ease;
     }
+
     body.dark-mode .toggle-btn {
       color: var(--text-light);
     }
 
-    /* Form switches */
     .form-switch .form-check-input {
       cursor: pointer;
     }
 
-    /* Alerts */
     .alert {
       margin-bottom: 15px;
     }
@@ -241,7 +252,7 @@
     </div>
   </div>
 
-  <!-- Main content -->
+  <!-- Content -->
   <div class="content" id="content">
     {% with messages = get_flashed_messages() %}
     {% if messages %}
@@ -262,7 +273,7 @@
     const toggleBtn = document.getElementById("toggleSidebar");
     const themeToggle = document.getElementById("themeToggle");
 
-    // Sidebar collapse state
+    // Sidebar persistence
     if (localStorage.getItem("sidebar-collapsed") === "true") {
       sidebar.classList.add("collapsed");
       content.classList.add("collapsed");
@@ -274,7 +285,7 @@
       localStorage.setItem("sidebar-collapsed", sidebar.classList.contains("collapsed"));
     });
 
-    // Theme toggle state
+    // Theme persistence
     if (localStorage.getItem("theme") === "dark") {
       document.body.classList.add("dark-mode");
       themeToggle.checked = true;
