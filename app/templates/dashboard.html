@@ -29,7 +29,10 @@
             {% for act in customer.activities %}
               <li>
                 • {{ act.text }}
-                <small class="text-muted">(created by {{ act.creator.username }})</small>
+                <small class="text-muted">
+                  — by {{ act.creator.username }}
+                  on {{ act.timestamp.strftime('%Y-%m-%d %H:%M') if act.timestamp else 'N/A' }}
+                </small>
               </li>
             {% endfor %}
           </ul>
