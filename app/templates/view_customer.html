@@ -26,6 +26,7 @@
   {% endif %}
 
   <a href="{{ url_for('main.add_activity', customer_id=customer.id) }}" class="btn btn-primary mt-3">Add Activity</a>
-  <a href="{{ url_for('main.customers') }}" class="btn btn-secondary mt-3">Back</a>
+  <a href="{{ url_for('main.customers') }}" class="btn btn-secondary">Back to Customers</a>
+  <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
 </div>
 {% endblock %}
