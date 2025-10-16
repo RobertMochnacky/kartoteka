@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
+from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, g
 from flask_login import login_required, current_user
 # app/main.py
 from .models import Customer, Activity, User
@@ -263,17 +263,22 @@ def settings():
         text_color=current_user.text_color
     )
 
-@main_bp.route("/save_user_settings", methods=["POST"])
+@main.route('/update_settings', methods=['POST'])
 @login_required
-def save_user_settings():
+def update_settings():
     data = request.get_json()
-    if "primary_color" in data:
-        current_user.primary_color = data["primary_color"]
-    if "sidebar_bg_color" in data:
-        current_user.sidebar_bg_color = data["sidebar_bg_color"]
-    if "text_color" in data:
-        current_user.text_color = data["text_color"]
-    db.session.commit()
-    return jsonify({"success": True})
+    primary_color = data.get('primary_color')
+    theme = data.get('theme')
 
+    # Update current user
+    current_user.primary_color = primary_color
+    current_user.theme = theme
+
+    db.session.commit()
+
+    # Update g so the change applies immediately if page reloads
+    g.primary_color = primary_color
+    g.theme = theme
+
+    return jsonify({"success": True})
 
