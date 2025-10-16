@@ -115,6 +115,28 @@ def add_activity(customer_id):
 
     return render_template("add_activity.html", customer=customer)
 
+@main_bp.route("/add_activity", methods=["POST"])
+@login_required
+def add_activity_from_activities():
+    customer_id = request.form.get("customer_id")
+    text = request.form.get("activity_text")
+
+    if not customer_id or not text:
+        flash("Customer and Activity text are required.", "danger")
+        return redirect(url_for("main.activities"))
+
+    # Create the activity
+    activity = Activity(
+        text=text,
+        customer_id=int(customer_id),
+        creator_id=current_user.id
+    )
+    db.session.add(activity)
+    db.session.commit()
+
+    flash("Activity added successfully.", "success")
+    return redirect(url_for("main.activities"))
+
 @main_bp.route("/customer/<int:customer_id>")
 @login_required
 def view_customer(customer_id):
