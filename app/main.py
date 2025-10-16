@@ -146,6 +146,30 @@ def add_activity_from_activities():
     flash("Activity added successfully.", "success")
     return redirect(url_for("main.activities"))
 
+@main_bp.route("/edit_activity/<int:activity_id>", methods=["GET", "POST"])
+@login_required
+def edit_activity(activity_id):
+    activity = Activity.query.get_or_404(activity_id)
+    customers = Customer.query.all()  # in case you want to allow changing the customer
+
+    if request.method == "POST":
+        text = request.form.get("text")
+        customer_id = request.form.get("customer_id")
+
+        if not text:
+            flash("Activity text is required.", "danger")
+            return redirect(url_for("main.edit_activity", activity_id=activity.id))
+
+        activity.text = text
+        if customer_id:
+            activity.customer_id = int(customer_id)
+        db.session.commit()
+
+        flash("Activity updated successfully.", "success")
+        return redirect(url_for("main.activities"))
+
+    return render_template("edit_activity.html", activity=activity, customers=customers)
+
 @main_bp.route("/customer/<int:customer_id>")
 @login_required
 def view_customer(customer_id):
