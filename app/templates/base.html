@@ -13,16 +13,29 @@
       --sidebar-collapsed-width: 70px;
       --primary-color: #3a86ff;
       --bg-light: #f9f9fb;
+      --bg-dark: #1e1e2f;
       --text-dark: #333;
+      --text-light: #eee;
+      --sidebar-bg-light: #fff;
+      --sidebar-bg-dark: #2b2b3d;
+      --hover-light: #f1f3f5;
+      --hover-dark: #3b3b4f;
     }
 
     body {
       font-family: "Inter", "Segoe UI", sans-serif;
-      background-color: var(--bg-light);
       margin: 0;
       height: 100vh;
       overflow: hidden;
-      transition: background-color 0.3s ease;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      background-color: var(--bg-light);
+      color: var(--text-dark);
+    }
+
+    /* Dark mode */
+    body.dark-mode {
+      background-color: var(--bg-dark);
+      color: var(--text-light);
     }
 
     /* Navbar */
@@ -32,6 +45,12 @@
       border-bottom: 1px solid #e0e0e0;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
       z-index: 1030;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    body.dark-mode .navbar {
+      background-color: #2b2b3d;
+      border-bottom: 1px solid #444;
     }
 
     .navbar-brand {
@@ -46,15 +65,20 @@
       left: 0;
       width: var(--sidebar-width);
       height: calc(100vh - 60px);
-      background-color: #fff;
+      background-color: var(--sidebar-bg-light);
       border-right: 1px solid #e0e0e0;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       padding: 10px 0;
-      transition: width 0.3s ease;
+      transition: width 0.3s ease, background-color 0.3s ease, color 0.3s ease;
       overflow: hidden;
       z-index: 1020;
+    }
+
+    body.dark-mode .sidebar {
+      background-color: var(--sidebar-bg-dark);
+      border-right: 1px solid #444;
     }
 
     .sidebar.collapsed {
@@ -62,7 +86,7 @@
     }
 
     .sidebar a {
-      color: var(--text-dark);
+      color: inherit;
       text-decoration: none;
       display: flex;
       align-items: center;
@@ -75,13 +99,22 @@
     }
 
     .sidebar a:hover {
-      background-color: #f1f3f5;
+      background-color: var(--hover-light);
+    }
+
+    body.dark-mode .sidebar a:hover {
+      background-color: var(--hover-dark);
     }
 
     .sidebar a.active {
       background-color: #e9f2ff;
       border-left: 3px solid var(--primary-color);
       font-weight: 500;
+      color: var(--primary-color);
+    }
+
+    body.dark-mode .sidebar a.active {
+      background-color: #3b3b4f;
       color: var(--primary-color);
     }
 
@@ -98,6 +131,11 @@
     .sidebar-bottom {
       border-top: 1px solid #e0e0e0;
       padding-top: 10px;
+      transition: border-color 0.3s ease;
+    }
+
+    body.dark-mode .sidebar-bottom {
+      border-top: 1px solid #444;
     }
 
     /* Content */
@@ -106,11 +144,16 @@
       padding: 25px 35px;
       height: calc(100vh - 60px);
       overflow-y: auto;
-      transition: margin-left 0.3s ease;
+      transition: margin-left 0.3s ease, background-color 0.3s ease, color 0.3s ease;
     }
 
     .sidebar.collapsed ~ .content {
       margin-left: var(--sidebar-collapsed-width);
+    }
+
+    body.dark-mode .content {
+      background-color: var(--bg-dark);
+      color: var(--text-light);
     }
 
     /* Buttons */
@@ -127,9 +170,18 @@
       border: none;
       background: none;
       color: var(--text-dark);
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       cursor: pointer;
       margin-right: 15px;
+      transition: color 0.3s ease;
+    }
+
+    body.dark-mode .toggle-btn {
+      color: var(--text-light);
+    }
+
+    .form-switch .form-check-input {
+      cursor: pointer;
     }
 
     .alert {
@@ -182,10 +234,15 @@
       </a>
     </div>
 
-    <div class="sidebar-bottom">
+    <div class="sidebar-bottom px-3">
       <a href="{{ url_for('main.settings') }}" class="{% if request.endpoint == 'main.settings' %}active{% endif %}">
         <i class="bi bi-gear"></i> <span>Settings</span>
       </a>
+
+      <div class="form-check form-switch mt-3 ps-0 d-flex align-items-center">
+        <input class="form-check-input ms-2" type="checkbox" id="themeToggle">
+        <label class="form-check-label ms-2" for="themeToggle"><span>Dark mode</span></label>
+      </div>
     </div>
   </div>
 
@@ -208,8 +265,9 @@
     const sidebar = document.getElementById("sidebar");
     const content = document.getElementById("content");
     const toggleBtn = document.getElementById("toggleSidebar");
+    const themeToggle = document.getElementById("themeToggle");
 
-    // Load sidebar state from localStorage
+    // Sidebar persistence
     if (localStorage.getItem("sidebar-collapsed") === "true") {
       sidebar.classList.add("collapsed");
       content.classList.add("collapsed");
@@ -218,9 +276,23 @@
     toggleBtn.addEventListener("click", () => {
       sidebar.classList.toggle("collapsed");
       content.classList.toggle("collapsed");
-
-      // Save state to localStorage
       localStorage.setItem("sidebar-collapsed", sidebar.classList.contains("collapsed"));
+    });
+
+    // Theme persistence
+    if (localStorage.getItem("theme") === "dark") {
+      document.body.classList.add("dark-mode");
+      themeToggle.checked = true;
+    }
+
+    themeToggle.addEventListener("change", () => {
+      if (themeToggle.checked) {
+        document.body.classList.add("dark-mode");
+        localStorage.setItem("theme", "dark");
+      } else {
+        document.body.classList.remove("dark-mode");
+        localStorage.setItem("theme", "light");
+      }
     });
   </script>
 </body>
