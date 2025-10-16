@@ -78,37 +78,32 @@
 {% if activities %}
 <ul class="list-group">
     {% for act in activities %}
-    <li class="list-group-item d-flex justify-content-between align-items-start" id="activity-{{ act.id }}">
-        <div>
-            <strong>{{ act.customer.name }}</strong> - {{ act.text }} 
+    <li class="list-group-item d-flex justify-content-between align-items-center" id="activity-{{ act.id }}">
+        <!-- Activity Text -->
+        <div class="activity-text">
+            <strong>{{ act.customer.name }}</strong> - <span class="text-content">{{ act.text }}</span>
             <br>
             <small class="text-muted">Added by {{ act.creator.username }} at {{ act.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
         </div>
-        <div class="btn-group btn-group-sm" role="group">
+
+        <!-- Edit/Delete Buttons -->
+        <div class="activity-buttons btn-group btn-group-sm">
             <button type="button" class="btn btn-outline-primary edit-btn" data-id="{{ act.id }}">Edit</button>
             <a href="{{ url_for('main.delete_activity', activity_id=act.id) }}" 
                class="btn btn-outline-danger" onclick="return confirm('Are you sure?');">Delete</a>
         </div>
 
-        <!-- Inline edit form (hidden by default) -->
-        <form method="POST" class="inline-edit-form d-none mt-2">
-            <div class="row g-2">
-                <div class="col-md-5">
-                    <select name="customer_id" class="form-select">
-                        {% for customer in customers %}
-                        <option value="{{ customer.id }}" {% if customer.id == act.customer.id %}selected{% endif %}>{{ customer.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-md-5">
-                    <input type="text" name="text" class="form-control" value="{{ act.text }}" required>
-                </div>
-                <div class="col-md-2 d-flex gap-1">
-                    <button type="button" class="btn btn-success w-100 save-btn" data-id="{{ act.id }}">Save</button>
-                    <button type="button" class="btn btn-secondary w-100 cancel-btn">Cancel</button>
-                </div>
-            </div>
-        </form>
+        <!-- Inline Edit Form -->
+        <div class="inline-edit-form d-none d-flex gap-2" style="flex:1;">
+            <select name="customer_id" class="form-select form-select-sm w-25">
+                {% for customer in customers %}
+                <option value="{{ customer.id }}" {% if customer.id == act.customer.id %}selected{% endif %}>{{ customer.name }}</option>
+                {% endfor %}
+            </select>
+            <input type="text" name="text" class="form-control form-control-sm w-50" value="{{ act.text }}" required>
+            <button type="button" class="btn btn-success btn-sm save-btn" data-id="{{ act.id }}">Save</button>
+            <button type="button" class="btn btn-secondary btn-sm cancel-btn">Cancel</button>
+        </div>
     </li>
     {% endfor %}
 </ul>
@@ -119,16 +114,17 @@
 <script>
 document.querySelectorAll('.edit-btn').forEach(button => {
     button.addEventListener('click', () => {
-        const id = button.dataset.id;
-        const li = document.getElementById('activity-' + id);
-        li.querySelector('.inline-edit-form').classList.remove('d-none');
+        const li = button.closest('li');
+        li.querySelector('.activity-buttons').classList.add('d-none');  // hide edit/delete
+        li.querySelector('.inline-edit-form').classList.remove('d-none'); // show edit form
     });
 });
 
 document.querySelectorAll('.cancel-btn').forEach(button => {
     button.addEventListener('click', () => {
         const li = button.closest('li');
-        li.querySelector('.inline-edit-form').classList.add('d-none');
+        li.querySelector('.inline-edit-form').classList.add('d-none'); // hide edit form
+        li.querySelector('.activity-buttons').classList.remove('d-none'); // show buttons
     });
 });
 
@@ -148,8 +144,10 @@ document.querySelectorAll('.save-btn').forEach(button => {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                li.querySelector('div:first-child').innerHTML = `<strong>${data.customer_name}</strong> - ${data.text} <br><small class="text-muted">Added by {{ current_user.username }} at ${data.timestamp}</small>`;
+                li.querySelector('.text-content').textContent = data.text;
+                li.querySelector('.activity-text strong').textContent = data.customer_name;
                 form.classList.add('d-none');
+                li.querySelector('.activity-buttons').classList.remove('d-none');
             } else {
                 alert(data.message);
             }
