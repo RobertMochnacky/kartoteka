@@ -1,85 +1,49 @@
 {% extends "base.html" %}
+
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-  <div class="row">
+<h2>Welcome, {{ current_user.username }}!</h2>
 
-    <!-- Sidebar -->
-    <nav class="col-md-2 d-none d-md-block bg-light sidebar py-4">
-      <div class="sidebar-sticky">
-        <ul class="nav flex-column">
-          <li class="nav-item">
-            <a class="nav-link active" href="{{ url_for('main.dashboard') }}">
-              Dashboard
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('main.customers') }}">
-              Customers
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('main.add_customer') }}">
-              Add Customer
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('auth.logout') }}">
-              Logout
-            </a>
-          </li>
-        </ul>
-      </div>
-    </nav>
-
-    <!-- Main content -->
-    <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
-      <h2 class="mt-4">Welcome, {{ current_user.username }}!</h2>
-
-      <h3 class="mt-4">Recent Customers & Activities</h3>
-      {% if customers %}
-        <ul class="list-group">
-        {% for customer in customers %}
-          <li class="list-group-item">
+<h3 class="mt-4">Recent Customers & Activities</h3>
+{% if customers %}
+    <ul class="list-group">
+    {% for customer in customers %}
+        <li class="list-group-item">
             <strong>{{ customer.name }}</strong> - {{ customer.email }}
             {% if customer.activities %}
-              <ul>
-              {% for act in customer.activities %}
-                <li>{{ act.text }} 
-                    <small class="text-muted">
-                      (created by {{ act.creator.username }} at {{ act.timestamp.strftime('%Y-%m-%d %H:%M') }})
-                    </small>
-                </li>
-              {% endfor %}
-              </ul>
+                <ul>
+                {% for act in customer.activities %}
+                    <li>{{ act.text }} 
+                        <small class="text-muted">
+                            (created by {{ act.creator.username }} at {{ act.timestamp.strftime('%Y-%m-%d %H:%M') }})
+                        </small>
+                    </li>
+                {% endfor %}
+                </ul>
             {% else %}
-              <p>No activities yet.</p>
+                <p>No activities yet.</p>
             {% endif %}
             <div>
-              <a href="{{ url_for('main.view_customer', customer_id=customer.id) }}">View</a> |
-              <a href="{{ url_for('main.edit_customer', customer_id=customer.id) }}">Edit</a> |
-              <a href="{{ url_for('main.delete_customer', customer_id=customer.id) }}" 
-                 onclick="return confirm('Are you sure?');">Delete</a>
+                <a href="{{ url_for('main.view_customer', customer_id=customer.id) }}">View</a> |
+                <a href="{{ url_for('main.edit_customer', customer_id=customer.id) }}">Edit</a> |
+                <a href="{{ url_for('main.delete_customer', customer_id=customer.id) }}" 
+                   onclick="return confirm('Are you sure?');">Delete</a>
             </div>
-          </li>
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No customers yet.</p>
+{% endif %}
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <ul class="alert alert-info mt-3">
+        {% for message in messages %}
+            <li>{{ message }}</li>
         {% endfor %}
         </ul>
-      {% else %}
-        <p>No customers yet.</p>
-      {% endif %}
-
-      {% with messages = get_flashed_messages() %}
-        {% if messages %}
-          <ul class="alert alert-info mt-3">
-          {% for message in messages %}
-            <li>{{ message }}</li>
-          {% endfor %}
-          </ul>
-        {% endif %}
-      {% endwith %}
-
-    </main>
-  </div>
-</div>
+    {% endif %}
+{% endwith %}
 {% endblock %}
