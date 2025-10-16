@@ -1,7 +1,7 @@
 # kartoteka
 
 Pull changes from Github repo
-git pull
+```git pull```
 
 sudo docker compose up --build
 
