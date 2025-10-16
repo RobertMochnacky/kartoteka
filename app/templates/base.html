@@ -23,6 +23,12 @@
             padding: 10px 20px;
             color: #333;
             text-decoration: none;
+            border-left: 4px solid transparent;
+        }
+        .sidebar a.active {
+            background-color: #e9ecef;
+            border-left: 4px solid #0d6efd; /* Bootstrap primary color */
+            font-weight: bold;
         }
         .sidebar a:hover {
             background-color: #e9ecef;
@@ -59,10 +65,10 @@
 
 <!-- Left Sidebar -->
 <div class="sidebar">
-    <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
-    <a href="{{ url_for('main.customers') }}">Customers</a>
-    <a href="{{ url_for('main.add_customer') }}">Add Customer</a>
-    <a href="{{ url_for('main.activities') }}">Activities Overview</a>
+    <a href="{{ url_for('main.dashboard') }}" class="{% if request.endpoint == 'main.dashboard' %}active{% endif %}">Dashboard</a>
+    <a href="{{ url_for('main.customers') }}" class="{% if request.endpoint in ['main.customers', 'main.view_customer', 'main.edit_customer'] %}active{% endif %}">Customers</a>
+    <a href="{{ url_for('main.add_customer') }}" class="{% if request.endpoint == 'main.add_customer' %}active{% endif %}">Add Customer</a>
+    <a href="{{ url_for('main.activities') }}" class="{% if request.endpoint == 'main.activities' %}active{% endif %}">Activities</a>
 </div>
 
 <!-- Main Content -->
