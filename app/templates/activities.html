@@ -4,6 +4,27 @@
 {% block content %}
 <h2>Activities</h2>
 
+<!-- Add New Activity Form -->
+<h4 class="mt-3">Add New Activity</h4>
+<form method="post" action="{{ url_for('main.add_activity') }}" class="mb-4 row g-3">
+    <div class="col-md-4">
+        <label for="customer_id_new" class="form-label">Customer</label>
+        <select name="customer_id" id="customer_id_new" class="form-select" required>
+            {% for customer in customers %}
+                <option value="{{ customer.id }}">{{ customer.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-6">
+        <label for="activity_text" class="form-label">Activity Text</label>
+        <input type="text" name="activity_text" id="activity_text" class="form-control" required>
+    </div>
+    <div class="col-md-2 d-flex align-items-end">
+        <button type="submit" class="btn btn-success w-100">Add Activity</button>
+    </div>
+</form>
+
+<!-- Filter Form -->
 <form method="get" class="row g-3 mb-3">
     <div class="col-md-3">
         <label for="customer_id" class="form-label">Customer</label>
@@ -29,11 +50,12 @@
         <input type="date" name="end_date" id="end_date" class="form-control" value="{{ filter_end_date or '' }}">
     </div>
     <div class="col-md-2 d-flex align-items-end">
-        <button type="submit" class="btn btn-primary">Filter</button>
-        <a href="{{ url_for('main.activities') }}" class="btn btn-secondary ms-2">Reset</a>
+        <button type="submit" class="btn btn-primary w-50">Filter</button>
+        <a href="{{ url_for('main.activities') }}" class="btn btn-secondary w-50 ms-1">Reset</a>
     </div>
 </form>
 
+<!-- Activities List -->
 {% if activities %}
 <ul class="list-group">
     {% for act in activities %}
