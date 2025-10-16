@@ -96,19 +96,19 @@
         </div>
 
         <!-- Inline Edit Form -->
-        <div class="inline-edit-form d-none d-flex flex-grow-1 align-items-center gap-2">
+        <div class="inline-edit-form d-none d-flex justify-content-between align-items-center w-100">
             <!-- Left side: Customer and Activity Inputs -->
             <div class="d-flex gap-2 flex-grow-1">
-                <select name="customer_id" class="form-select form-select-sm w-25">
+                <select name="customer_id" class="form-select form-select-sm" style="width: 150px;">
                     {% for customer in customers %}
                     <option value="{{ customer.id }}" {% if customer.id == act.customer.id %}selected{% endif %}>{{ customer.name }}</option>
                     {% endfor %}
                 </select>
                 <input type="text" name="text" class="form-control form-control-sm flex-grow-1" value="{{ act.text }}" required>
             </div>
-
+        
             <!-- Right side: Save/Cancel buttons -->
-            <div class="d-flex gap-1">
+            <div class="d-flex gap-1 ms-2">
                 <button type="button" class="btn btn-success btn-sm save-btn" data-id="{{ act.id }}">Save</button>
                 <button type="button" class="btn btn-secondary btn-sm cancel-btn">Cancel</button>
             </div>
