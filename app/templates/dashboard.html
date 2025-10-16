@@ -22,6 +22,17 @@
 {% endif %}
 
 <h3 class="mt-4">Recent Activities</h3>
+
+<!-- Dropdown to select how many recent activities to show -->
+<form method="get" class="mb-3">
+    <label for="recent_limit" class="form-label">Show last:</label>
+    <select name="recent_limit" id="recent_limit" class="form-select w-auto d-inline" onchange="this.form.submit()">
+        {% for n in [5,10,15,20,30] %}
+            <option value="{{ n }}" {% if n == recent_limit %}selected{% endif %}>{{ n }}</option>
+        {% endfor %}
+    </select>
+</form>
+
 {% if activities %}
 <ul class="list-group">
     {% for act in activities %}
