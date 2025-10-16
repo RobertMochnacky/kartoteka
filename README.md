@@ -21,7 +21,7 @@ initialize db to create all tables (run only once)
 ```sudo docker-compose run --rm web flask db init```
 
 Migrate db to reflect changes in tables columns
-```sudo docker-compose run --rm web flask db migrate -m "Chnange: "```
+```sudo docker-compose run --rm web flask db migrate -m "Cnange: "```
 
 Upgrade db
 
