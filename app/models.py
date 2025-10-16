@@ -14,6 +14,7 @@ class User(UserMixin, db.Model):
     primary_color = db.Column(db.String(7), default="#3a86ff")  # HEX
     sidebar_bg_color = db.Column(db.String(7), default="#fff")
     text_color = db.Column(db.String(7), default="#212529")
+    theme = db.Column(db.String(10), default="light")
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
