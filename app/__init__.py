@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import os
 from sqlalchemy import inspect
 from flask_babel import Babel
+import click
 
 load_dotenv()  # load .env
 
@@ -43,4 +44,29 @@ def create_app():
     from .main import main_bp
     app.register_blueprint(main_bp)
 
+    # Optional: Register translation CLI commands
+    register_translation_commands(app)
+
     return app
+
+def register_translation_commands(app):
+    @app.cli.group()
+    def translate():
+        """Translation and localization commands"""
+        pass
+
+    @translate.command()
+    @click.option('--lang', default='sk', help='Language code (default: sk)')
+    def init(lang):
+        """Initialize new translation"""
+        os.system(f"pybabel init -i messages.pot -d translations -l {lang}")
+
+    @translate.command()
+    def update():
+        """Update translation template"""
+        os.system("pybabel update -i messages.pot -d translations")
+
+    @translate.command()
+    def compile():
+        """Compile translations"""
+        os.system("pybabel compile -d translations")
