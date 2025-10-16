@@ -101,3 +101,9 @@ def view_customer(customer_id):
 def activities():
     all_activities = Activity.query.order_by(Activity.timestamp.desc()).all()
     return render_template("activities.html", activities=all_activities)
+
+@main_bp.route("/customers")
+@login_required
+def customers():
+    customers = Customer.query.all()
+    return render_template("customers.html", customers=customers)
