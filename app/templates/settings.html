@@ -52,7 +52,6 @@
   const accentPicker = document.getElementById("accentColor");
   const root = document.documentElement;
 
-  // Initialize saved preferences
   const savedTheme = localStorage.getItem("theme");
   const savedAccent = localStorage.getItem("accentColor");
 
@@ -62,23 +61,30 @@
   }
 
   if (savedAccent) {
-    root.style.setProperty("--primary-color", savedAccent);
     accentPicker.value = savedAccent;
     applyAccent(savedAccent);
   }
 
-  // Apply accent colors dynamically
+  // Apply accent with adaptive contrast for icons
   function applyAccent(color) {
     root.style.setProperty("--primary-color", color);
     root.style.setProperty("--bs-primary", color);
     root.style.setProperty("--bs-link-color", color);
     root.style.setProperty("--bs-link-hover-color", color);
-    root.style.setProperty("--accent-hover", shadeColor(color, -10));
-    document.querySelectorAll(".btn-primary, .text-primary").forEach(el => {
-      el.style.backgroundColor = color;
-      el.style.borderColor = color;
-      el.style.color = "#fff";
+
+    const hover = shadeColor(color, -10);
+    const contrastColor = getContrastColor(color);
+
+    // Buttons and sidebar
+    document.querySelectorAll(".btn-primary, .text-primary, .bi").forEach(el => {
+      el.style.color = contrastColor;
+      if (el.classList.contains("btn-primary")) {
+        el.style.backgroundColor = color;
+        el.style.borderColor = color;
+      }
     });
+
+    // Sidebar active indicators
     document.querySelectorAll(".sidebar a.active").forEach(el => {
       el.style.borderLeftColor = color;
     });
@@ -95,13 +101,12 @@
     }
   });
 
-  // Accent color change
+  // Accent color picker listener
   accentPicker.addEventListener("input", () => {
-    const color = accentPicker.value;
-    applyAccent(color);
+    applyAccent(accentPicker.value);
   });
 
-  // Save settings
+  // Save preferences
   document.getElementById("saveSettings").addEventListener("click", () => {
     const color = accentPicker.value;
     localStorage.setItem("accentColor", color);
@@ -114,7 +119,7 @@
     setTimeout(() => toast.remove(), 2000);
   });
 
-  // Utility: adjust brightness for hover colors
+  // Utility: adjust brightness for hover states
   function shadeColor(color, percent) {
     const num = parseInt(color.slice(1), 16),
       amt = Math.round(2.55 * percent),
@@ -127,6 +132,16 @@
       (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
       (B < 255 ? (B < 1 ? 0 : B) : 255)
     ).toString(16).slice(1);
+  }
+
+  // Utility: calculate whether black or white contrasts better
+  function getContrastColor(hex) {
+    hex = hex.replace("#", "");
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+    return brightness > 150 ? "#000000" : "#FFFFFF";
   }
 </script>
 {% endblock %}
