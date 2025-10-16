@@ -22,6 +22,8 @@ class Customer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128), nullable=False)
     email = db.Column(db.String(150), nullable=False, unique=True)
+    phone = db.Column(db.String(50))
+    address = db.Column(db.String(255))
     activities = db.relationship("Activity", back_populates="customer", cascade="all, delete-orphan")
 
 
