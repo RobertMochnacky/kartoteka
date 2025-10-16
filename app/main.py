@@ -266,6 +266,34 @@ def delete_customer(customer_id):
     flash("Customer deleted!")
     return redirect(url_for("main.dashboard"))
 
+@main_bp.route("/search_customers")
+@login_required
+def search_customers():
+    query = request.args.get("q", "").strip()
+    if query:
+        customers = Customer.query.filter(
+            or_(
+                Customer.name.ilike(f"%{query}%"),
+                Customer.email.ilike(f"%{query}%"),
+                Customer.phone.ilike(f"%{query}%"),
+                Customer.address.ilike(f"%{query}%")
+            )
+        ).all()
+    else:
+        customers = Customer.query.all()
+
+    # Return JSON data
+    results = []
+    for c in customers:
+        results.append({
+            "id": c.id,
+            "name": c.name,
+            "email": c.email,
+            "phone": c.phone,
+            "address": c.address
+        })
+    return jsonify(results)
+
 # -----------------------------
 # Settings routes
 # -----------------------------
