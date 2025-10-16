@@ -20,9 +20,12 @@ def index():
 @main_bp.route("/dashboard")
 @login_required
 def dashboard():
-    # Fetch all customers with their activity reports
     customers = Customer.query.all()
-    return render_template("dashboard.html", user=current_user, customers=customers)
+    # Show recent 5 activities
+    activities = Activity.query.join(Customer).join(User)\
+        .order_by(Activity.timestamp.desc())\
+        .limit(5).all()
+    return render_template("dashboard.html", customers=customers, activities=activities)
 
 @main_bp.route("/add_customer", methods=["GET", "POST"])
 @login_required
