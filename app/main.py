@@ -1,6 +1,5 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, g
+from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
-# app/main.py
 from .models import Customer, Activity, User
 from . import db
 from sqlalchemy import or_, and_
@@ -8,13 +7,24 @@ from datetime import datetime
 
 main_bp = Blueprint("main", __name__)
 
-#@main_bp.route("/dashboard")
-#def dashboard():
-#    return "<h1>Dashboard works!</h1>"
+# -----------------------------
+# Context processor for user colors
+# -----------------------------
+@main_bp.context_processor
+def inject_user_colors():
+    if current_user.is_authenticated:
+        return {
+            "primary_color": current_user.primary_color or "#3a86ff",
+            "sidebar_bg_color": current_user.sidebar_bg_color or "#fff",
+            "text_color": current_user.text_color or "#212529"
+        }
+    return {}
 
+# -----------------------------
+# Index / Dashboard
+# -----------------------------
 @main_bp.route("/")
 def index():
-    # Redirect to dashboard
     return redirect(url_for("main.dashboard"))
 
 @main_bp.route("/dashboard")
@@ -22,13 +32,11 @@ def index():
 def dashboard():
     customers = Customer.query.all()
 
-    # Get number of recent activities from query parameter, default 5
     try:
         limit = int(request.args.get("recent_limit", 5))
     except ValueError:
         limit = 5
 
-    # Ensure limit is one of the allowed values
     if limit not in [5, 10, 15, 20, 30]:
         limit = 5
 
@@ -44,15 +52,12 @@ def dashboard():
         "dashboard.html",
         customers=customers,
         activities=activities,
-        recent_limit=limit,
-        primary_color=current_user.primary_color,
-        sidebar_bg_color=current_user.sidebar_bg_color,
-        text_color=current_user.text_color
+        recent_limit=limit
     )
 
-###################
-# Activities section
-###################
+# -----------------------------
+# Activities routes
+# -----------------------------
 @main_bp.route("/add_activity/<int:customer_id>", methods=["GET", "POST"])
 @login_required
 def add_activity(customer_id):
@@ -60,12 +65,10 @@ def add_activity(customer_id):
 
     if request.method == "POST":
         text = request.form.get("text")
-
         if not text:
             flash("Activity text is required.", "danger")
             return redirect(url_for("main.add_activity", customer_id=customer.id))
 
-        # Create the activity and assign current user as creator
         activity = Activity(
             text=text,
             customer_id=customer.id,
@@ -73,7 +76,6 @@ def add_activity(customer_id):
         )
         db.session.add(activity)
         db.session.commit()
-
         flash("Activity added successfully.", "success")
         return redirect(url_for("main.view_customer", customer_id=customer.id))
 
@@ -89,7 +91,6 @@ def add_activity_from_activities():
         flash("Customer and Activity text are required.", "danger")
         return redirect(url_for("main.activities"))
 
-    # Create the activity
     activity = Activity(
         text=text,
         customer_id=int(customer_id),
@@ -97,7 +98,6 @@ def add_activity_from_activities():
     )
     db.session.add(activity)
     db.session.commit()
-
     flash("Activity added successfully.", "success")
     return redirect(url_for("main.activities"))
 
@@ -105,7 +105,7 @@ def add_activity_from_activities():
 @login_required
 def edit_activity(activity_id):
     activity = Activity.query.get_or_404(activity_id)
-    customers = Customer.query.all()  # in case you want to allow changing the customer
+    customers = Customer.query.all()
 
     if request.method == "POST":
         text = request.form.get("text")
@@ -119,7 +119,6 @@ def edit_activity(activity_id):
         if customer_id:
             activity.customer_id = int(customer_id)
         db.session.commit()
-
         flash("Activity updated successfully.", "success")
         return redirect(url_for("main.activities"))
 
@@ -140,15 +139,13 @@ def edit_activity_ajax(activity_id):
         activity.customer_id = int(customer_id)
     db.session.commit()
 
-    # Return updated info to update the DOM
     return jsonify({
         "success": True,
         "text": activity.text,
         "customer_name": activity.customer.name,
         "timestamp": activity.timestamp.strftime('%Y-%m-%d %H:%M')
     })
-    
-# Delete an activity
+
 @main_bp.route("/delete_activity/<int:activity_id>", methods=["POST", "GET"])
 @login_required
 def delete_activity(activity_id):
@@ -161,7 +158,6 @@ def delete_activity(activity_id):
 @main_bp.route("/activities")
 @login_required
 def activities():
-    # Get filter parameters from query string
     customer_id = request.args.get("customer_id", type=int)
     text = request.args.get("text", type=str)
     start_date = request.args.get("start_date")
@@ -181,15 +177,20 @@ def activities():
         query = query.filter(Activity.timestamp <= end_dt)
 
     activities = query.order_by(Activity.timestamp.desc()).all()
-    customers = Customer.query.all()  # For filter dropdown
-    return render_template("activities.html", activities=activities, customers=customers,
-                           filter_customer_id=customer_id, filter_text=text,
-                           filter_start_date=start_date, filter_end_date=end_date)
+    customers = Customer.query.all()
+    return render_template(
+        "activities.html",
+        activities=activities,
+        customers=customers,
+        filter_customer_id=customer_id,
+        filter_text=text,
+        filter_start_date=start_date,
+        filter_end_date=end_date
+    )
 
-
-###################
-# Customers section
-###################
+# -----------------------------
+# Customers routes
+# -----------------------------
 @main_bp.route("/customers")
 @login_required
 def customers():
@@ -208,13 +209,13 @@ def add_customer():
     if request.method == "POST":
         name = request.form["name"]
         email = request.form["email"]
-        phone = request.form.get("phone") or "0000 000 000"  # default if empty
-        address = request.form.get("address") or "Unknown"    # default if empty
+        phone = request.form.get("phone") or "0000 000 000"
+        address = request.form.get("address") or "Unknown"
 
         if not name:
             flash("Name field is required!")
             return redirect(url_for("main.add_customer"))
-            
+
         customer = Customer(
             name=name,
             email=email,
@@ -225,7 +226,7 @@ def add_customer():
         db.session.commit()
         flash("Customer added successfully!")
         return redirect(url_for("main.customers"))
-        
+
     return render_template("add_customer.html")
 
 @main_bp.route("/edit_customer/<int:customer_id>", methods=["GET", "POST"])
@@ -253,15 +254,13 @@ def delete_customer(customer_id):
     flash("Customer deleted!")
     return redirect(url_for("main.dashboard"))
 
+# -----------------------------
+# Settings routes
+# -----------------------------
 @main_bp.route("/settings")
 @login_required
 def settings():
-    return render_template(
-        "settings.html",
-        primary_color=current_user.primary_color,
-        sidebar_bg_color=current_user.sidebar_bg_color,
-        text_color=current_user.text_color
-    )
+    return render_template("settings.html")
 
 @main_bp.route("/save_settings", methods=["POST"])
 @login_required
@@ -273,4 +272,3 @@ def save_settings():
     current_user.theme = data.get("theme", current_user.theme)
     db.session.commit()
     return jsonify({"status": "success"})
-
