@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Add Activity{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Add Activity for {{ customer.name }}</h2>
+
+  <form method="POST">
+    <div class="mb-3">
+      <label for="text" class="form-label">Activity Description</label>
+      <input type="text" class="form-control" id="text" name="text" placeholder="Describe activity..." required>
+    </div>
+    <button type="submit" class="btn btn-primary">Add Activity</button>
+    <a href="{{ url_for('main.view_customer', customer_id=customer.id) }}" class="btn btn-secondary">Back</a>
+  </form>
+</div>
+{% endblock %}
