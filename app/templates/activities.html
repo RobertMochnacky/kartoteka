@@ -78,10 +78,17 @@
 {% if activities %}
 <ul class="list-group">
     {% for act in activities %}
-    <li class="list-group-item">
-        <strong>{{ act.customer.name }}</strong> - {{ act.text }} 
-        <br>
-        <small class="text-muted">Added by {{ act.creator.username }} at {{ act.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+    <li class="list-group-item d-flex justify-content-between align-items-start">
+        <div>
+            <strong>{{ act.customer.name }}</strong> - {{ act.text }} 
+            <br>
+            <small class="text-muted">
+                Added by {{ act.creator.username }} at {{ act.timestamp.strftime('%Y-%m-%d %H:%M') }}
+            </small>
+        </div>
+        <div>
+            <a href="{{ url_for('main.edit_activity', activity_id=act.id) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+        </div>
     </li>
     {% endfor %}
 </ul>
