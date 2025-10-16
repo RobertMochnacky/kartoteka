@@ -10,10 +10,10 @@
   <!-- User colors -->
   <style>
     :root {
-      --primary-color: {{ current_user.primary_color or '#3a86ff' }};
-      --sidebar-bg-light: {{ current_user.sidebar_bg_color or '#fff' }};
+      --primary-color: {{ primary_color or '#3a86ff' }};
+      --sidebar-bg-light: {{ sidebar_bg_color or '#fff' }};
       --sidebar-bg-dark: #2b2b3d;
-      --text-dark: {{ current_user.text_color or '#212529' }};
+      --text-dark: {{ text_color or '#212529' }};
       --text-light: #eee;
       --hover-light: #f1f3f5;
       --hover-dark: #3b3b4f;
