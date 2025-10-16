@@ -14,14 +14,15 @@
         </div>
         <div class="card-body">
           <div class="form-check form-switch mb-3">
-            <input class="form-check-input" type="checkbox" id="darkModeToggle">
+            <input class="form-check-input" type="checkbox" id="darkModeToggle"
+              {% if g.theme == 'dark' %}checked{% endif %}>
             <label class="form-check-label" for="darkModeToggle">Enable dark mode</label>
           </div>
 
           <div class="mb-3">
             <label for="accentColor" class="form-label">Accent color</label>
             <input type="color" id="accentColor" class="form-control form-control-color"
-                   title="Choose your accent color" value="#3a86ff">
+                   title="Choose your accent color" value="{{ g.primary_color or '#3a86ff' }}">
           </div>
         </div>
       </div>
@@ -52,28 +53,13 @@
   const accentPicker = document.getElementById("accentColor");
   const root = document.documentElement;
 
-  // Load saved preferences from localStorage
-  const savedTheme = localStorage.getItem("theme");
-  const savedAccent = localStorage.getItem("accentColor");
-
-  if (savedTheme === "dark") {
-    document.body.classList.add("dark-mode");
-    darkToggle.checked = true;
-  }
-
-  if (savedAccent) {
-    accentPicker.value = savedAccent;
-    applyAccent(savedAccent);
-  }
-
-  // Apply accent colors
+  // --- Live preview ---
   function applyAccent(color) {
     root.style.setProperty("--primary-color", color);
     root.style.setProperty("--bs-primary", color);
     root.style.setProperty("--bs-link-color", color);
     root.style.setProperty("--bs-link-hover-color", color);
 
-    // Update buttons and sidebar active indicators
     document.querySelectorAll(".btn-primary").forEach(el => {
       el.style.backgroundColor = color;
       el.style.borderColor = color;
@@ -86,33 +72,40 @@
     });
   }
 
-  // Dark mode toggle
-  darkToggle.addEventListener("change", () => {
-    if (darkToggle.checked) {
+  function applyTheme(theme) {
+    if (theme === "dark") {
       document.body.classList.add("dark-mode");
-      localStorage.setItem("theme", "dark");
     } else {
       document.body.classList.remove("dark-mode");
-      localStorage.setItem("theme", "light");
     }
-  });
+  }
 
-  // Accent color picker
-  accentPicker.addEventListener("input", () => {
-    applyAccent(accentPicker.value);
-  });
+  // Apply initial settings from DB
+  applyAccent(accentPicker.value);
+  applyTheme(darkToggle.checked ? "dark" : "light");
 
-  // Save settings button
-  document.getElementById("saveSettings").addEventListener("click", () => {
+  // Live preview events
+  accentPicker.addEventListener("input", () => applyAccent(accentPicker.value));
+  darkToggle.addEventListener("change", () => applyTheme(darkToggle.checked ? "dark" : "light"));
+
+  // Save preferences to DB
+  document.getElementById("saveSettings").addEventListener("click", async () => {
     const color = accentPicker.value;
-    localStorage.setItem("accentColor", color);
-    localStorage.setItem("theme", darkToggle.checked ? "dark" : "light");
+    const theme = darkToggle.checked ? "dark" : "light";
 
-    const toast = document.createElement("div");
-    toast.className = "alert alert-success mt-3";
-    toast.innerText = "✅ Settings saved successfully!";
-    document.querySelector(".container-fluid").prepend(toast);
-    setTimeout(() => toast.remove(), 2000);
+    const response = await fetch("{{ url_for('main.update_settings') }}", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ primary_color: color, theme: theme })
+    });
+
+    if (response.ok) {
+      const toast = document.createElement("div");
+      toast.className = "alert alert-success mt-3";
+      toast.innerText = "✅ Settings saved successfully!";
+      document.querySelector(".container-fluid").prepend(toast);
+      setTimeout(() => toast.remove(), 2000);
+    }
   });
 </script>
 {% endblock %}
