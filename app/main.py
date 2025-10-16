@@ -3,6 +3,8 @@ from flask_login import login_required, current_user
 # app/main.py
 from .models import Customer, Activity
 from . import db
+from sqlalchemy import or_, and_
+from datetime import datetime
 
 main_bp = Blueprint("main", __name__)
 
@@ -99,8 +101,30 @@ def view_customer(customer_id):
 @main_bp.route("/activities")
 @login_required
 def activities():
-    all_activities = Activity.query.order_by(Activity.timestamp.desc()).all()
-    return render_template("activities.html", activities=all_activities)
+    # Get filter parameters from query string
+    customer_id = request.args.get("customer_id", type=int)
+    text = request.args.get("text", type=str)
+    start_date = request.args.get("start_date")
+    end_date = request.args.get("end_date")
+
+    query = Activity.query.join(Customer).join(User)
+
+    if customer_id:
+        query = query.filter(Activity.customer_id == customer_id)
+    if text:
+        query = query.filter(Activity.text.ilike(f"%{text}%"))
+    if start_date:
+        start_dt = datetime.strptime(start_date, "%Y-%m-%d")
+        query = query.filter(Activity.timestamp >= start_dt)
+    if end_date:
+        end_dt = datetime.strptime(end_date, "%Y-%m-%d")
+        query = query.filter(Activity.timestamp <= end_dt)
+
+    activities = query.order_by(Activity.timestamp.desc()).all()
+    customers = Customer.query.all()  # For filter dropdown
+    return render_template("activities.html", activities=activities, customers=customers,
+                           filter_customer_id=customer_id, filter_text=text,
+                           filter_start_date=start_date, filter_end_date=end_date)
 
 @main_bp.route("/customers")
 @login_required
