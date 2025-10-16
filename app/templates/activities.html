@@ -1,17 +1,48 @@
 {% extends "base.html" %}
 {% block title %}Activities{% endblock %}
+
 {% block content %}
-<h2>All Activities</h2>
+<h2>Activities</h2>
+
+<form method="get" class="row g-3 mb-3">
+    <div class="col-md-3">
+        <label for="customer_id" class="form-label">Customer</label>
+        <select class="form-select" name="customer_id" id="customer_id">
+            <option value="">All</option>
+            {% for customer in customers %}
+            <option value="{{ customer.id }}" {% if filter_customer_id == customer.id %}selected{% endif %}>
+                {{ customer.name }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label for="text" class="form-label">Activity Text</label>
+        <input type="text" name="text" id="text" class="form-control" value="{{ filter_text or '' }}">
+    </div>
+    <div class="col-md-2">
+        <label for="start_date" class="form-label">From</label>
+        <input type="date" name="start_date" id="start_date" class="form-control" value="{{ filter_start_date or '' }}">
+    </div>
+    <div class="col-md-2">
+        <label for="end_date" class="form-label">To</label>
+        <input type="date" name="end_date" id="end_date" class="form-control" value="{{ filter_end_date or '' }}">
+    </div>
+    <div class="col-md-2 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <a href="{{ url_for('main.activities') }}" class="btn btn-secondary ms-2">Reset</a>
+    </div>
+</form>
+
 {% if activities %}
 <ul class="list-group">
-  {% for act in activities %}
-  <li class="list-group-item">
-    {{ act.text }}<br>
-    <small class="text-muted">
-      Customer: {{ act.customer.name }} | Added by {{ act.creator.username }} at {{ act.timestamp.strftime('%Y-%m-%d %H:%M') }}
-    </small>
-  </li>
-  {% endfor %}
+    {% for act in activities %}
+    <li class="list-group-item">
+        <strong>{{ act.customer.name }}</strong> - {{ act.text }} 
+        <br>
+        <small class="text-muted">Added by {{ act.creator.username }} at {{ act.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+    </li>
+    {% endfor %}
 </ul>
 {% else %}
 <p>No activities found.</p>
