@@ -9,43 +9,52 @@
 <h3>Customers & Activities</h3>
 
 {% if customers %}
-    <ul class="list-group">
+  <ul class="list-group">
     {% for customer in customers %}
-        <li class="list-group-item">
-            <strong>{{ customer.name }}</strong> - {{ customer.email }}
-            {% if customer.activities %}
-                <ul>
-                {% for act in customer.activities %}
-                    <li>{{ act.text }} (created by {{ act.creator.username }})</li>
-                {% endfor %}
-                </ul>
-            {% else %}
-                <p>No activities yet.</p>
-            {% endif %}
-            <div>
-                <a href="{{ url_for('main.edit_customer', customer_id=customer.id) }}">Edit</a> |
-                <a href="{{ url_for('main.delete_customer', customer_id=customer.id) }}" onclick="return confirm('Are you sure?');">Delete</a>
-            </div>
-        </li>
+      <li class="list-group-item">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <strong>{{ customer.name }}</strong> – {{ customer.email }}
+          </div>
+          <div>
+            <a href="{{ url_for('main.view_customer', customer_id=customer.id) }}" class="btn btn-sm btn-outline-primary">View</a>
+            <a href="{{ url_for('main.add_activity', customer_id=customer.id) }}" class="btn btn-sm btn-outline-success">Add Activity</a>
+            <a href="{{ url_for('main.edit_customer', customer_id=customer.id) }}" class="btn btn-sm btn-outline-warning">Edit</a>
+            <a href="{{ url_for('main.delete_customer', customer_id=customer.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure?');">Delete</a>
+          </div>
+        </div>
+
+        {% if customer.activities %}
+          <ul class="mt-2 list-unstyled ms-3">
+            {% for act in customer.activities %}
+              <li>
+                • {{ act.text }}
+                <small class="text-muted">(created by {{ act.creator.username }})</small>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted ms-3 mb-0">No activities yet.</p>
+        {% endif %}
+      </li>
     {% endfor %}
-    </ul>
+  </ul>
 {% else %}
-    <p>No customers yet.</p>
+  <p>No customers yet.</p>
 {% endif %}
 
-<div style="margin-top: 15px;">
-    <a href="{{ url_for('main.add_customer') }}" class="btn btn-primary">Add New Customer</a>
-    <a href="{{ url_for('auth.logout') }}" class="btn btn-secondary">Logout</a>
+<div class="mt-4">
+  <a href="{{ url_for('main.add_customer') }}" class="btn btn-primary">Add New Customer</a>
+  <a href="{{ url_for('auth.logout') }}" class="btn btn-secondary">Logout</a>
 </div>
 
 {% with messages = get_flashed_messages() %}
 {% if messages %}
-    <ul class="alert alert-info mt-2">
+  <div class="alert alert-info mt-3">
     {% for message in messages %}
-        <li>{{ message }}</li>
+      <div>{{ message }}</div>
     {% endfor %}
-    </ul>
+  </div>
 {% endif %}
 {% endwith %}
-
 {% endblock %}
