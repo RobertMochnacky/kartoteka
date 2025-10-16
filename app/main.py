@@ -249,3 +249,10 @@ def delete_customer(customer_id):
     db.session.commit()
     flash("Customer deleted!")
     return redirect(url_for("main.dashboard"))
+
+@main_bp.route("/settings", methods=["GET", "POST"])
+@login_required
+def settings():
+    # Here you can handle user settings, color themes, etc.
+    return render_template("settings.html")
+
