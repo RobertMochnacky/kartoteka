@@ -253,7 +253,7 @@ def delete_customer(customer_id):
     flash("Customer deleted!")
     return redirect(url_for("main.dashboard"))
 
-@main.route("/settings")
+@main_bp.route("/settings")
 @login_required
 def settings():
     return render_template(
@@ -263,7 +263,7 @@ def settings():
         text_color=current_user.text_color
     )
 
-@main.route("/save_settings", methods=["POST"])
+@main_bp.route("/save_settings", methods=["POST"])
 @login_required
 def save_settings():
     data = request.get_json()
