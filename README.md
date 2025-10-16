@@ -20,6 +20,9 @@ sudo docker-compose run --rm web flask db migrate -m "Initial migration"
 upgrade db
 sudo docker-compose run --rm web flask db upgrade
 
+Changes made to the code - Rebuild and restart
+sudo docker-compose down
+sudo docker-compose up --build
 
-
+remove containers, volumes and orhpaned containers
 sudo docker-compose down --volumes --remove-orphans
