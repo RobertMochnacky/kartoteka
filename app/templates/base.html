@@ -76,12 +76,14 @@
 
     .content {
       margin-left: var(--sidebar-width);
-      padding: 25px 35px;
+      padding: 85px 35px 25px 35px; /* top padding = navbar height + 25px spacing */
       height: calc(100vh - 60px);
       overflow-y: auto;
       transition: margin-left 0.3s ease, background-color 0.3s ease, color 0.3s ease;
     }
+    
     .sidebar.collapsed ~ .content { margin-left: var(--sidebar-collapsed-width); }
+    
     body.dark-mode .content { background-color: #1e1e2f; color: var(--text-light); }
 
     .btn-primary { background-color: var(--primary-color); border: none; color: #fff; }
