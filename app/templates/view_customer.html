@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}{{ customer.name }}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h2>{{ customer.name }}</h2>
+  <p><strong>Email:</strong> {{ customer.email }}</p>
+
+  <h4 class="mt-4">Activities</h4>
+  {% if customer.activities %}
+    <ul class="list-group">
+      {% for act in customer.activities %}
+        <li class="list-group-item">
+          {{ act.text }}<br>
+          <small class="text-muted">Added by {{ act.creator.username }}</small>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No activities yet.</p>
+  {% endif %}
+
+  <a href="{{ url_for('main.add_activity', customer_id=customer.id) }}" class="btn btn-primary mt-3">Add Activity</a>
+  <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary mt-3">Back</a>
+</div>
+{% endblock %}
