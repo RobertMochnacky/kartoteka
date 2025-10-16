@@ -21,7 +21,7 @@
           <div class="mb-3">
             <label for="accentColor" class="form-label">Accent color</label>
             <input type="color" id="accentColor" class="form-control form-control-color"
-                   title="Choose your accent color" value="#3a86ff">
+                   title="Choose your accent color" value="{{ primary_color or '#3a86ff' }}">
           </div>
         </div>
       </div>
@@ -48,100 +48,84 @@
 </div>
 
 <script>
-  const darkToggle = document.getElementById("darkModeToggle");
-  const accentPicker = document.getElementById("accentColor");
-  const root = document.documentElement;
+const darkToggle = document.getElementById("darkModeToggle");
+const accentPicker = document.getElementById("accentColor");
+const root = document.documentElement;
 
-  const savedTheme = localStorage.getItem("theme");
-  const savedAccent = localStorage.getItem("accentColor");
+// Load saved preferences
+const savedTheme = localStorage.getItem("theme");
+const savedAccent = localStorage.getItem("accentColor");
 
-  if (savedTheme === "dark") {
-    document.body.classList.add("dark-mode");
-    darkToggle.checked = true;
-  }
+// Apply saved preferences
+if (savedTheme === "dark") {
+  document.body.classList.add("dark-mode");
+  darkToggle.checked = true;
+}
+if (savedAccent) {
+  accentPicker.value = savedAccent;
+  applyAccent(savedAccent);
+}
 
-  if (savedAccent) {
-    accentPicker.value = savedAccent;
-    applyAccent(savedAccent);
-  }
+// Apply accent color dynamically
+function applyAccent(color) {
+  root.style.setProperty("--primary-color", color);
 
-  // Apply accent with adaptive contrast for icons
-  function applyAccent(color) {
-    root.style.setProperty("--primary-color", color);
-    root.style.setProperty("--bs-primary", color);
-    root.style.setProperty("--bs-link-color", color);
-    root.style.setProperty("--bs-link-hover-color", color);
+  // Update buttons
+  document.querySelectorAll(".btn-primary").forEach(btn => {
+    btn.style.backgroundColor = color;
+    btn.style.borderColor = color;
+    btn.style.color = getContrastColor(color);
+  });
 
-    const hover = shadeColor(color, -10);
-    const contrastColor = getContrastColor(color);
-
-    // Buttons and sidebar
-    document.querySelectorAll(".btn-primary, .text-primary, .bi").forEach(el => {
-      el.style.color = contrastColor;
-      if (el.classList.contains("btn-primary")) {
-        el.style.backgroundColor = color;
-        el.style.borderColor = color;
-      }
-    });
-
-    // Sidebar active indicators
-    document.querySelectorAll(".sidebar a.active").forEach(el => {
-      el.style.borderLeftColor = color;
-    });
-  }
-
-  // Dark mode toggle
-  darkToggle.addEventListener("change", () => {
-    if (darkToggle.checked) {
-      document.body.classList.add("dark-mode");
-      localStorage.setItem("theme", "dark");
-    } else {
-      document.body.classList.remove("dark-mode");
-      localStorage.setItem("theme", "light");
+  // Update text/icons in sidebar and navbar
+  document.querySelectorAll(".text-primary, .bi, .sidebar a, .navbar-brand").forEach(el => {
+    if (!el.classList.contains("btn-primary")) {
+      el.style.color = color;
     }
   });
 
-  // Accent color picker listener
-  accentPicker.addEventListener("input", () => {
-    applyAccent(accentPicker.value);
+  // Sidebar active indicators
+  document.querySelectorAll(".sidebar a.active").forEach(el => {
+    el.style.borderLeftColor = color;
   });
+}
 
-  // Save preferences
-  document.getElementById("saveSettings").addEventListener("click", () => {
-    const color = accentPicker.value;
-    localStorage.setItem("accentColor", color);
-    localStorage.setItem("theme", darkToggle.checked ? "dark" : "light");
-
-    const toast = document.createElement("div");
-    toast.className = "alert alert-success mt-3";
-    toast.innerText = "✅ Settings saved successfully!";
-    document.querySelector(".container-fluid").prepend(toast);
-    setTimeout(() => toast.remove(), 2000);
-  });
-
-  // Utility: adjust brightness for hover states
-  function shadeColor(color, percent) {
-    const num = parseInt(color.slice(1), 16),
-      amt = Math.round(2.55 * percent),
-      R = (num >> 16) + amt,
-      G = (num >> 8 & 0x00FF) + amt,
-      B = (num & 0x0000FF) + amt;
-    return "#" + (
-      0x1000000 +
-      (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
-      (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
-      (B < 255 ? (B < 1 ? 0 : B) : 255)
-    ).toString(16).slice(1);
+// Dark mode toggle
+darkToggle.addEventListener("change", () => {
+  if (darkToggle.checked) {
+    document.body.classList.add("dark-mode");
+    localStorage.setItem("theme", "dark");
+  } else {
+    document.body.classList.remove("dark-mode");
+    localStorage.setItem("theme", "light");
   }
+});
 
-  // Utility: calculate whether black or white contrasts better
-  function getContrastColor(hex) {
-    hex = hex.replace("#", "");
-    const r = parseInt(hex.substr(0, 2), 16);
-    const g = parseInt(hex.substr(2, 2), 16);
-    const b = parseInt(hex.substr(4, 2), 16);
-    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-    return brightness > 150 ? "#000000" : "#FFFFFF";
-  }
+// Accent color picker live update
+accentPicker.addEventListener("input", () => {
+  applyAccent(accentPicker.value);
+});
+
+// Save preferences
+document.getElementById("saveSettings").addEventListener("click", () => {
+  localStorage.setItem("accentColor", accentPicker.value);
+  localStorage.setItem("theme", darkToggle.checked ? "dark" : "light");
+
+  const toast = document.createElement("div");
+  toast.className = "alert alert-success mt-3";
+  toast.innerText = "✅ Settings saved successfully!";
+  document.querySelector(".container-fluid").prepend(toast);
+  setTimeout(() => toast.remove(), 2000);
+});
+
+// Utility: calculate contrasting color for text/icons
+function getContrastColor(hex) {
+  hex = hex.replace("#", "");
+  const r = parseInt(hex.substr(0, 2), 16);
+  const g = parseInt(hex.substr(2, 2), 16);
+  const b = parseInt(hex.substr(4, 2), 16);
+  const brightness = (r*299 + g*587 + b*114) / 1000;
+  return brightness > 150 ? "#000000" : "#FFFFFF";
+}
 </script>
 {% endblock %}
