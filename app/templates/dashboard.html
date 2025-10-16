@@ -8,12 +8,17 @@
 {% if customers %}
 <ul class="list-group mb-4">
     {% for customer in customers %}
-    <li class="list-group-item">
-        <strong>{{ customer.name }}</strong> - {{ customer.email }}<br>
-        <small>Phone: {{ customer.phone }} | Address: {{ customer.address }}</small>
-        <div class="mt-1">
-            <a href="{{ url_for('main.view_customer', customer_id=customer.id) }}">View</a> |
-            <a href="{{ url_for('main.edit_customer', customer_id=customer.id) }}">Edit</a>
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+        <!-- Customer Info -->
+        <div>
+            <strong>{{ customer.name }}</strong> - {{ customer.email }}<br>
+            <small>Phone: {{ customer.phone }} | Address: {{ customer.address }}</small>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="d-flex gap-1">
+            <a href="{{ url_for('main.view_customer', customer_id=customer.id) }}" class="btn btn-sm btn-outline-primary">View</a>
+            <a href="{{ url_for('main.edit_customer', customer_id=customer.id) }}" class="btn btn-sm btn-outline-warning">Edit</a>
         </div>
     </li>
     {% endfor %}
