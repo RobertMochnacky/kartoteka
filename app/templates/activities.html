@@ -80,21 +80,23 @@
     {% for act in activities %}
     <li class="list-group-item d-flex justify-content-between align-items-center" id="activity-{{ act.id }}">
         <!-- Activity Text -->
-        <div class="activity-text">
-            <strong>{{ act.customer.name }}</strong> - <span class="text-content">{{ act.text }}</span>
-            <br>
-            <small class="text-muted">Added by {{ act.creator.username }} at {{ act.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+        <div class="activity-text" style="flex:1;">
+            <span class="text-content">
+                <strong>{{ act.customer.name }}</strong> - {{ act.text }}
+                <br>
+                <small class="text-muted">Added by {{ act.creator.username }} at {{ act.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+            </span>
         </div>
 
         <!-- Edit/Delete Buttons -->
-        <div class="activity-buttons btn-group btn-group-sm">
+        <div class="activity-buttons btn-group btn-group-sm ms-2">
             <button type="button" class="btn btn-outline-primary edit-btn" data-id="{{ act.id }}">Edit</button>
             <a href="{{ url_for('main.delete_activity', activity_id=act.id) }}" 
                class="btn btn-outline-danger" onclick="return confirm('Are you sure?');">Delete</a>
         </div>
 
         <!-- Inline Edit Form -->
-        <div class="inline-edit-form d-none d-flex gap-2" style="flex:1;">
+        <div class="inline-edit-form d-none d-flex gap-2 ms-2" style="flex:1;">
             <select name="customer_id" class="form-select form-select-sm w-25">
                 {% for customer in customers %}
                 <option value="{{ customer.id }}" {% if customer.id == act.customer.id %}selected{% endif %}>{{ customer.name }}</option>
@@ -116,6 +118,7 @@ document.querySelectorAll('.edit-btn').forEach(button => {
     button.addEventListener('click', () => {
         const li = button.closest('li');
         li.querySelector('.activity-buttons').classList.add('d-none');  // hide edit/delete
+        li.querySelector('.activity-text .text-content').classList.add('d-none'); // hide original text
         li.querySelector('.inline-edit-form').classList.remove('d-none'); // show edit form
     });
 });
@@ -125,6 +128,7 @@ document.querySelectorAll('.cancel-btn').forEach(button => {
         const li = button.closest('li');
         li.querySelector('.inline-edit-form').classList.add('d-none'); // hide edit form
         li.querySelector('.activity-buttons').classList.remove('d-none'); // show buttons
+        li.querySelector('.activity-text .text-content').classList.remove('d-none'); // show original text
     });
 });
 
@@ -144,10 +148,11 @@ document.querySelectorAll('.save-btn').forEach(button => {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                li.querySelector('.text-content').textContent = data.text;
-                li.querySelector('.activity-text strong').textContent = data.customer_name;
+                const textContent = li.querySelector('.activity-text .text-content');
+                textContent.innerHTML = `<strong>${data.customer_name}</strong> - ${data.text} <br><small class="text-muted">Added by ${data.creator_name} at ${data.timestamp}</small>`;
                 form.classList.add('d-none');
                 li.querySelector('.activity-buttons').classList.remove('d-none');
+                textContent.classList.remove('d-none');
             } else {
                 alert(data.message);
             }
