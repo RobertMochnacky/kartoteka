@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Edit Activity{% endblock %}
+
+{% block content %}
+<h2>Edit Activity</h2>
+
+<form method="POST" action="{{ url_for('main.edit_activity', activity_id=activity.id) }}">
+    <div class="form-group">
+        <label for="customer_id">Customer</label>
+        <select class="form-select" id="customer_id" name="customer_id">
+            {% for customer in customers %}
+            <option value="{{ customer.id }}" {% if customer.id == activity.customer_id %}selected{% endif %}>
+                {{ customer.name }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group mt-2">
+        <label for="text">Activity Text</label>
+        <textarea class="form-control" id="text" name="text" required>{{ activity.text }}</textarea>
+    </div>
+    <button type="submit" class="btn btn-primary mt-3">Save Changes</button>
+    <a href="{{ url_for('main.activities') }}" class="btn btn-secondary mt-3">Cancel</a>
+</form>
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+    <ul class="alert alert-info mt-2">
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+{% endwith %}
+{% endblock %}
