@@ -88,15 +88,15 @@
             </span>
         </div>
 
-        <!-- Edit/Delete Buttons -->
-        <div class="activity-buttons btn-group btn-group-sm ms-2">
-            <button type="button" class="btn btn-outline-primary edit-btn" data-id="{{ act.id }}">Edit</button>
+        <!-- Edit/Delete Buttons Separated -->
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-primary btn-sm edit-btn" data-id="{{ act.id }}">Edit</button>
             <a href="{{ url_for('main.delete_activity', activity_id=act.id) }}" 
-               class="btn btn-outline-danger" onclick="return confirm('Are you sure?');">Delete</a>
+               class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure?');">Delete</a>
         </div>
 
         <!-- Inline Edit Form -->
-        <div class="inline-edit-form d-none d-flex justify-content-between align-items-center w-100">
+        <div class="inline-edit-form d-none d-flex justify-content-between align-items-center w-100 mt-2">
             <!-- Left side: Customer and Activity Inputs -->
             <div class="d-flex gap-2 flex-grow-1">
                 <select name="customer_id" class="form-select form-select-sm" style="width: 150px;">
@@ -129,7 +129,7 @@ document.addEventListener("DOMContentLoaded", function() {
         btn.addEventListener("click", function() {
             const li = btn.closest("li");
             li.querySelector(".text-content").classList.add("d-none");
-            li.querySelector(".activity-buttons").classList.add("d-none");
+            li.querySelector(".d-flex.gap-2").classList.add("d-none"); // hide edit/delete buttons
             li.querySelector(".inline-edit-form").classList.remove("d-none");
         });
     });
@@ -138,7 +138,7 @@ document.addEventListener("DOMContentLoaded", function() {
         btn.addEventListener("click", function() {
             const li = btn.closest("li");
             li.querySelector(".text-content").classList.remove("d-none");
-            li.querySelector(".activity-buttons").classList.remove("d-none");
+            li.querySelector(".d-flex.gap-2").classList.remove("d-none"); // show edit/delete buttons
             li.querySelector(".inline-edit-form").classList.add("d-none");
         });
     });
