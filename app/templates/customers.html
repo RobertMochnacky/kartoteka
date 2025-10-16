@@ -5,19 +5,18 @@
 {% block content %}
 <h2>Customers</h2>
 
-<!-- Search Form -->
-<form method="get" class="mb-3 d-flex">
-  <input type="text" name="q" class="form-control me-2" placeholder="Search customers..." value="{{ search_query or '' }}">
-  <button type="submit" class="btn btn-primary">Search</button>
-</form>
+<!-- Search input -->
+<div class="mb-3">
+  <input type="text" id="customerSearch" class="form-control" placeholder="Search customers...">
+</div>
 
 {% if customers %}
-<ul class="list-group mt-3">
+<ul class="list-group mt-3" id="customerList">
     {% for customer in customers %}
     <li class="list-group-item d-flex justify-content-between align-items-center">
         <!-- Left: Customer info -->
-        <div>
-            <strong>{{ customer.name }}</strong> - {{ customer.email }} - Phone: {{ customer.phone }} | Address: {{ customer.address }}
+        <div class="customer-info">
+            <strong>{{ customer.name }}</strong> - Email: {{ customer.email }} | Phone: {{ customer.phone }} | Address: {{ customer.address }}
         </div>
 
         <!-- Right: Buttons -->
@@ -31,9 +30,25 @@
     {% endfor %}
 </ul>
 {% else %}
-<p class="mt-3">No customers found.</p>
+<p class="mt-3">No customers yet.</p>
 {% endif %}
 
 <a href="{{ url_for('main.add_customer') }}" class="btn btn-primary mt-3">Add New Customer</a>
 <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary mt-3">Back to Dashboard</a>
+
+<!-- Live search script -->
+<script>
+const searchInput = document.getElementById("customerSearch");
+const customerList = document.getElementById("customerList");
+const customers = Array.from(customerList.getElementsByTagName("li"));
+
+searchInput.addEventListener("input", function() {
+    const query = this.value.toLowerCase();
+
+    customers.forEach(li => {
+        const text = li.querySelector(".customer-info").innerText.toLowerCase();
+        li.style.display = text.includes(query) ? "" : "none";
+    });
+});
+</script>
 {% endblock %}
