@@ -34,7 +34,6 @@
         <div class="card-body">
           <p><strong>Username:</strong> {{ current_user.username }}</p>
           <p><strong>Email:</strong> {{ current_user.email }}</p>
-
           <hr>
           <p class="text-muted">Account management features coming soon (e.g., password change, profile picture, etc.).</p>
         </div>
@@ -49,22 +48,43 @@
 </div>
 
 <script>
-  // Dark mode toggle (sync with main theme)
   const darkToggle = document.getElementById("darkModeToggle");
   const accentPicker = document.getElementById("accentColor");
+  const root = document.documentElement;
 
-  // Initialize
-  if (localStorage.getItem("theme") === "dark") {
+  // Initialize saved preferences
+  const savedTheme = localStorage.getItem("theme");
+  const savedAccent = localStorage.getItem("accentColor");
+
+  if (savedTheme === "dark") {
+    document.body.classList.add("dark-mode");
     darkToggle.checked = true;
   }
 
-  if (localStorage.getItem("accentColor")) {
-    const color = localStorage.getItem("accentColor");
-    document.documentElement.style.setProperty("--primary-color", color);
-    accentPicker.value = color;
+  if (savedAccent) {
+    root.style.setProperty("--primary-color", savedAccent);
+    accentPicker.value = savedAccent;
+    applyAccent(savedAccent);
   }
 
-  // Event handlers
+  // Apply accent colors dynamically
+  function applyAccent(color) {
+    root.style.setProperty("--primary-color", color);
+    root.style.setProperty("--bs-primary", color);
+    root.style.setProperty("--bs-link-color", color);
+    root.style.setProperty("--bs-link-hover-color", color);
+    root.style.setProperty("--accent-hover", shadeColor(color, -10));
+    document.querySelectorAll(".btn-primary, .text-primary").forEach(el => {
+      el.style.backgroundColor = color;
+      el.style.borderColor = color;
+      el.style.color = "#fff";
+    });
+    document.querySelectorAll(".sidebar a.active").forEach(el => {
+      el.style.borderLeftColor = color;
+    });
+  }
+
+  // Dark mode toggle
   darkToggle.addEventListener("change", () => {
     if (darkToggle.checked) {
       document.body.classList.add("dark-mode");
@@ -75,17 +95,17 @@
     }
   });
 
+  // Accent color change
   accentPicker.addEventListener("input", () => {
     const color = accentPicker.value;
-    document.documentElement.style.setProperty("--primary-color", color);
+    applyAccent(color);
   });
 
+  // Save settings
   document.getElementById("saveSettings").addEventListener("click", () => {
     const color = accentPicker.value;
     localStorage.setItem("accentColor", color);
-
-    const theme = darkToggle.checked ? "dark" : "light";
-    localStorage.setItem("theme", theme);
+    localStorage.setItem("theme", darkToggle.checked ? "dark" : "light");
 
     const toast = document.createElement("div");
     toast.className = "alert alert-success mt-3";
@@ -93,5 +113,20 @@
     document.querySelector(".container-fluid").prepend(toast);
     setTimeout(() => toast.remove(), 2000);
   });
+
+  // Utility: adjust brightness for hover colors
+  function shadeColor(color, percent) {
+    const num = parseInt(color.slice(1), 16),
+      amt = Math.round(2.55 * percent),
+      R = (num >> 16) + amt,
+      G = (num >> 8 & 0x00FF) + amt,
+      B = (num & 0x0000FF) + amt;
+    return "#" + (
+      0x1000000 +
+      (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
+      (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
+      (B < 255 ? (B < 1 ? 0 : B) : 255)
+    ).toString(16).slice(1);
+  }
 </script>
 {% endblock %}
