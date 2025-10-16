@@ -9,8 +9,9 @@
 <ul class="list-group mb-4">
     {% for customer in customers %}
     <li class="list-group-item">
-        <strong>{{ customer.name }}</strong> - {{ customer.email }}
-        <div>
+        <strong>{{ customer.name }}</strong> - {{ customer.email }}<br>
+        <small>Phone: {{ customer.phone }} | Address: {{ customer.address }}</small>
+        <div class="mt-1">
             <a href="{{ url_for('main.view_customer', customer_id=customer.id) }}">View</a> |
             <a href="{{ url_for('main.edit_customer', customer_id=customer.id) }}">Edit</a>
         </div>
