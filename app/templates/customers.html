@@ -3,12 +3,11 @@
 {% block title %}Customers{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2>Customers</h2>
+<h2 class="mt-4">Customers</h2>
 
-    {% if customers %}
+{% if customers %}
     <ul class="list-group">
-        {% for customer in customers %}
+    {% for customer in customers %}
         <li class="list-group-item">
             <strong>{{ customer.name }}</strong> - {{ customer.email }}
             <div>
@@ -18,13 +17,12 @@
                    onclick="return confirm('Are you sure?');">Delete</a>
             </div>
         </li>
-        {% endfor %}
+    {% endfor %}
     </ul>
-    {% else %}
-        <p>No customers yet.</p>
-    {% endif %}
+{% else %}
+    <p>No customers yet.</p>
+{% endif %}
 
-    <a href="{{ url_for('main.add_customer') }}" class="btn btn-primary mt-3">Add New Customer</a>
-    <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary mt-3">Back to Dashboard</a>
-</div>
+<a href="{{ url_for('main.add_customer') }}" class="btn btn-primary mt-3">Add New Customer</a>
+<a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary mt-3">Back to Dashboard</a>
 {% endblock %}
