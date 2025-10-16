@@ -64,9 +64,9 @@
                 <label for="end_date" class="form-label">To</label>
                 <input type="date" name="end_date" id="end_date" class="form-control" value="{{ filter_end_date or '' }}">
             </div>
-            <div class="col-md-2 d-flex align-items-end">
+            <div class="col-md-2 d-flex align-items-end gap-2">
                 <button type="submit" class="btn btn-primary w-100">Filter</button>
-                <a href="{{ url_for('main.activities') }}" class="btn btn-secondary ms-2 w-100">Reset</a>
+                <a href="{{ url_for('main.activities') }}" class="btn btn-secondary w-100">Reset</a>
             </div>
         </form>
     </div>
@@ -78,41 +78,41 @@
 {% if activities %}
 <ul class="list-group">
     {% for act in activities %}
-    <li class="list-group-item d-flex justify-content-between align-items-start">
-        <!-- Display section -->
-        <div class="activity-display" id="display-{{ act.id }}">
-            <strong>{{ act.customer.name }}</strong> - {{ act.text }} 
-            <br>
-            <small class="text-muted">
-                Added by {{ act.creator.username }} at {{ act.timestamp.strftime('%Y-%m-%d %H:%M') }}
-            </small>
+    <li class="list-group-item d-flex justify-content-between align-items-center" id="activity-{{ act.id }}">
+        <!-- Activity Text -->
+        <div class="activity-text flex-grow-1">
+            <span class="text-content">
+                <strong>{{ act.customer.name }}</strong> - {{ act.text }}
+                <br>
+                <small class="text-muted">Added by {{ act.creator.username }} at {{ act.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+            </span>
         </div>
 
         <!-- Edit/Delete Buttons -->
-        <div class="d-flex align-items-center gap-2" id="buttons-{{ act.id }}">
-            <button class="btn btn-sm btn-primary edit-btn" data-id="{{ act.id }}">Edit</button>
-            <form method="POST" action="{{ url_for('main.delete_activity', activity_id=act.id) }}" 
-                  onsubmit="return confirm('Are you sure?');">
-                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-            </form>
+        <div class="activity-buttons btn-group btn-group-sm ms-2">
+            <button type="button" class="btn btn-outline-primary edit-btn" data-id="{{ act.id }}">Edit</button>
+            <a href="{{ url_for('main.delete_activity', activity_id=act.id) }}" 
+               class="btn btn-outline-danger" onclick="return confirm('Are you sure?');">Delete</a>
         </div>
 
         <!-- Inline Edit Form -->
-        <form method="POST" action="{{ url_for('main.edit_activity', activity_id=act.id) }}" 
-              class="edit-form d-flex gap-2 w-100" id="edit-form-{{ act.id }}" style="display:none;">
-            <select name="customer_id" class="form-select" style="max-width: 150px;">
-                {% for customer in customers %}
-                    <option value="{{ customer.id }}" {% if customer.id == act.customer_id %}selected{% endif %}>
-                        {{ customer.name }}
-                    </option>
-                {% endfor %}
-            </select>
-            <input type="text" name="text" class="form-control" value="{{ act.text }}">
-            <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-sm btn-success">Save</button>
-                <button type="button" class="btn btn-sm btn-secondary cancel-btn" data-id="{{ act.id }}">Cancel</button>
+        <div class="inline-edit-form d-none d-flex flex-grow-1 align-items-center gap-2">
+            <!-- Left side: Customer and Activity Inputs -->
+            <div class="d-flex gap-2 flex-grow-1">
+                <select name="customer_id" class="form-select form-select-sm w-25">
+                    {% for customer in customers %}
+                    <option value="{{ customer.id }}" {% if customer.id == act.customer.id %}selected{% endif %}>{{ customer.name }}</option>
+                    {% endfor %}
+                </select>
+                <input type="text" name="text" class="form-control form-control-sm flex-grow-1" value="{{ act.text }}" required>
             </div>
-        </form>
+
+            <!-- Right side: Save/Cancel buttons -->
+            <div class="d-flex gap-1">
+                <button type="button" class="btn btn-success btn-sm save-btn" data-id="{{ act.id }}">Save</button>
+                <button type="button" class="btn btn-secondary btn-sm cancel-btn">Cancel</button>
+            </div>
+        </div>
     </li>
     {% endfor %}
 </ul>
@@ -121,27 +121,50 @@
 {% endif %}
 
 <!-- ========================= -->
-<!-- Inline Edit Script -->
+<!-- Inline Editing JavaScript -->
 <!-- ========================= -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.edit-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const id = this.dataset.id;
-            document.getElementById('display-' + id).style.display = 'none';
-            document.getElementById('buttons-' + id).style.display = 'none';
-            document.getElementById('edit-form-' + id).style.display = 'flex';
+document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll(".edit-btn").forEach(btn => {
+        btn.addEventListener("click", function() {
+            const li = btn.closest("li");
+            li.querySelector(".text-content").classList.add("d-none");
+            li.querySelector(".activity-buttons").classList.add("d-none");
+            li.querySelector(".inline-edit-form").classList.remove("d-none");
         });
     });
 
-    document.querySelectorAll('.cancel-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const id = this.dataset.id;
-            document.getElementById('edit-form-' + id).style.display = 'none';
-            document.getElementById('display-' + id).style.display = 'block';
-            document.getElementById('buttons-' + id).style.display = 'flex';
+    document.querySelectorAll(".cancel-btn").forEach(btn => {
+        btn.addEventListener("click", function() {
+            const li = btn.closest("li");
+            li.querySelector(".text-content").classList.remove("d-none");
+            li.querySelector(".activity-buttons").classList.remove("d-none");
+            li.querySelector(".inline-edit-form").classList.add("d-none");
+        });
+    });
+
+    document.querySelectorAll(".save-btn").forEach(btn => {
+        btn.addEventListener("click", function() {
+            const li = btn.closest("li");
+            const formData = new FormData();
+            const customer_id = li.querySelector("select[name='customer_id']").value;
+            const text = li.querySelector("input[name='text']").value;
+            formData.append("customer_id", customer_id);
+            formData.append("text", text);
+
+            fetch(`/edit_activity/${btn.dataset.id}`, {
+                method: "POST",
+                body: formData,
+            }).then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert("Error updating activity");
+                }
+            });
         });
     });
 });
 </script>
+
 {% endblock %}
