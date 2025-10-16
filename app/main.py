@@ -263,22 +263,14 @@ def settings():
         text_color=current_user.text_color
     )
 
-@main.route('/update_settings', methods=['POST'])
+@main.route("/save_settings", methods=["POST"])
 @login_required
-def update_settings():
+def save_settings():
     data = request.get_json()
-    primary_color = data.get('primary_color')
-    theme = data.get('theme')
-
-    # Update current user
-    current_user.primary_color = primary_color
-    current_user.theme = theme
-
+    current_user.primary_color = data.get("primary_color", current_user.primary_color)
+    current_user.sidebar_bg_color = data.get("sidebar_bg_color", current_user.sidebar_bg_color)
+    current_user.text_color = data.get("text_color", current_user.text_color)
+    current_user.theme = data.get("theme", current_user.theme)
     db.session.commit()
-
-    # Update g so the change applies immediately if page reloads
-    g.primary_color = primary_color
-    g.theme = theme
-
-    return jsonify({"success": True})
+    return jsonify({"status": "success"})
 
