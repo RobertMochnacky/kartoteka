@@ -259,3 +259,17 @@ def settings():
     # Here you can handle user settings, color themes, etc.
     return render_template("settings.html")
 
+@main_bp.route("/save_user_settings", methods=["POST"])
+@login_required
+def save_user_settings():
+    data = request.get_json()
+    if "primary_color" in data:
+        current_user.primary_color = data["primary_color"]
+    if "sidebar_bg_color" in data:
+        current_user.sidebar_bg_color = data["sidebar_bg_color"]
+    if "text_color" in data:
+        current_user.text_color = data["text_color"]
+    db.session.commit()
+    return jsonify({"success": True})
+
+
