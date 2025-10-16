@@ -123,10 +123,6 @@
 
     <div class="sidebar-bottom px-3">
       <a href="{{ url_for('main.settings') }}" class="{% if request.endpoint == 'main.settings' %}active{% endif %}"><i class="bi bi-gear"></i> <span>Settings</span></a>
-      <div class="form-check form-switch mt-3 ps-0 d-flex align-items-center">
-        <input class="form-check-input ms-2" type="checkbox" id="themeToggle">
-        <label class="form-check-label ms-2" for="themeToggle"><span>Dark mode</span></label>
-      </div>
     </div>
   </div>
 
@@ -149,7 +145,6 @@
     const sidebar = document.getElementById("sidebar");
     const content = document.getElementById("content");
     const toggleBtn = document.getElementById("toggleSidebar");
-    const themeToggle = document.getElementById("themeToggle");
     const root = document.documentElement;
 
     // Sidebar persistence
@@ -162,22 +157,6 @@
       sidebar.classList.toggle("collapsed");
       content.classList.toggle("collapsed");
       localStorage.setItem("sidebar-collapsed", sidebar.classList.contains("collapsed"));
-    });
-
-    // Dark mode persistence
-    if (localStorage.getItem("theme") === "dark") {
-      document.body.classList.add("dark-mode");
-      themeToggle.checked = true;
-    }
-
-    themeToggle.addEventListener("change", () => {
-      if (themeToggle.checked) {
-        document.body.classList.add("dark-mode");
-        localStorage.setItem("theme", "dark");
-      } else {
-        document.body.classList.remove("dark-mode");
-        localStorage.setItem("theme", "light");
-      }
     });
 
     // Apply saved accent color from localStorage
