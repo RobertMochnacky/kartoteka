@@ -7,125 +7,52 @@
     <div class="col-md-8 mx-auto">
       <h2 class="mb-4"><i class="bi bi-gear-fill me-2"></i>Settings</h2>
 
-      <!-- Appearance Settings -->
       <div class="card shadow-sm mb-4">
-        <div class="card-header bg-white fw-semibold">
-          <i class="bi bi-palette me-2 text-primary"></i>Appearance
-        </div>
+        <div class="card-header bg-white fw-semibold"><i class="bi bi-palette me-2 text-primary"></i>Appearance</div>
         <div class="card-body">
           <div class="form-check form-switch mb-3">
-            <input class="form-check-input" type="checkbox" id="darkModeToggle">
+            <input class="form-check-input" type="checkbox" id="darkModeToggle" {% if localStorage.getItem('theme')=='dark' %}checked{% endif %}>
             <label class="form-check-label" for="darkModeToggle">Enable dark mode</label>
           </div>
 
           <div class="mb-3">
             <label for="accentColor" class="form-label">Accent color</label>
-            <input type="color" id="accentColor" class="form-control form-control-color"
-                   title="Choose your accent color" value="{{ primary_color or '#3a86ff' }}">
+            <input type="color" id="accentColor" class="form-control form-control-color" value="{{ current_user.primary_color or '#3a86ff' }}">
           </div>
         </div>
       </div>
 
-      <!-- User Account Settings -->
-      <div class="card shadow-sm mb-4">
-        <div class="card-header bg-white fw-semibold">
-          <i class="bi bi-person-circle me-2 text-primary"></i>Account
-        </div>
-        <div class="card-body">
-          <p><strong>Username:</strong> {{ current_user.username }}</p>
-          <p><strong>Email:</strong> {{ current_user.email }}</p>
-          <hr>
-          <p class="text-muted">Account management features coming soon (e.g., password change, profile picture, etc.).</p>
-        </div>
-      </div>
-
-      <!-- Save Settings -->
-      <button id="saveSettings" class="btn btn-primary">
-        <i class="bi bi-save me-1"></i> Save Preferences
-      </button>
+      <button id="saveSettings" class="btn btn-primary"><i class="bi bi-save me-1"></i> Save Preferences</button>
     </div>
   </div>
 </div>
 
 <script>
-const darkToggle = document.getElementById("darkModeToggle");
-const accentPicker = document.getElementById("accentColor");
-const root = document.documentElement;
+const darkToggle=document.getElementById("darkModeToggle");
+const accentPicker=document.getElementById("accentColor");
+const root=document.documentElement;
 
-// Load saved preferences
-const savedTheme = localStorage.getItem("theme");
-const savedAccent = localStorage.getItem("accentColor");
+function applyAccent(color){root.style.setProperty("--primary-color",color);}
+if(accentPicker.value){applyAccent(accentPicker.value);}
 
-// Apply saved preferences
-if (savedTheme === "dark") {
-  document.body.classList.add("dark-mode");
-  darkToggle.checked = true;
-}
-if (savedAccent) {
-  accentPicker.value = savedAccent;
-  applyAccent(savedAccent);
-}
+darkToggle.addEventListener("change",()=>{if(darkToggle.checked){document.body.classList.add("dark-mode");localStorage.setItem("theme","dark");}else{document.body.classList.remove("dark-mode");localStorage.setItem("theme","light");}});
 
-// Apply accent color dynamically
-function applyAccent(color) {
-  root.style.setProperty("--primary-color", color);
-
-  // Update buttons
-  document.querySelectorAll(".btn-primary").forEach(btn => {
-    btn.style.backgroundColor = color;
-    btn.style.borderColor = color;
-    btn.style.color = getContrastColor(color);
-  });
-
-  // Update text/icons in sidebar and navbar
-  document.querySelectorAll(".text-primary, .bi, .sidebar a, .navbar-brand").forEach(el => {
-    if (!el.classList.contains("btn-primary")) {
-      el.style.color = color;
+document.getElementById("saveSettings").addEventListener("click",async()=>{
+    const color=accentPicker.value;
+    applyAccent(color);
+    const res=await fetch("{{ url_for('main.save_user_settings') }}",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({primary_color:color})
+    });
+    const data=await res.json();
+    if(data.success){
+        const toast=document.createElement("div");
+        toast.className="alert alert-success mt-3";
+        toast.innerText="✅ Settings saved!";
+        document.querySelector(".container-fluid").prepend(toast);
+        setTimeout(()=>toast.remove(),2000);
     }
-  });
-
-  // Sidebar active indicators
-  document.querySelectorAll(".sidebar a.active").forEach(el => {
-    el.style.borderLeftColor = color;
-  });
-}
-
-// Dark mode toggle
-darkToggle.addEventListener("change", () => {
-  if (darkToggle.checked) {
-    document.body.classList.add("dark-mode");
-    localStorage.setItem("theme", "dark");
-  } else {
-    document.body.classList.remove("dark-mode");
-    localStorage.setItem("theme", "light");
-  }
 });
-
-// Accent color picker live update
-accentPicker.addEventListener("input", () => {
-  applyAccent(accentPicker.value);
-});
-
-// Save preferences
-document.getElementById("saveSettings").addEventListener("click", () => {
-  localStorage.setItem("accentColor", accentPicker.value);
-  localStorage.setItem("theme", darkToggle.checked ? "dark" : "light");
-
-  const toast = document.createElement("div");
-  toast.className = "alert alert-success mt-3";
-  toast.innerText = "✅ Settings saved successfully!";
-  document.querySelector(".container-fluid").prepend(toast);
-  setTimeout(() => toast.remove(), 2000);
-});
-
-// Utility: calculate contrasting color for text/icons
-function getContrastColor(hex) {
-  hex = hex.replace("#", "");
-  const r = parseInt(hex.substr(0, 2), 16);
-  const g = parseInt(hex.substr(2, 2), 16);
-  const b = parseInt(hex.substr(4, 2), 16);
-  const brightness = (r*299 + g*587 + b*114) / 1000;
-  return brightness > 150 ? "#000000" : "#FFFFFF";
-}
 </script>
 {% endblock %}
