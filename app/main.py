@@ -253,11 +253,15 @@ def delete_customer(customer_id):
     flash("Customer deleted!")
     return redirect(url_for("main.dashboard"))
 
-@main_bp.route("/settings")
+@main.route("/settings")
 @login_required
 def settings():
-    # Here you can handle user settings, color themes, etc.
-    return render_template("settings.html")
+    return render_template(
+        "settings.html",
+        primary_color=current_user.primary_color,
+        sidebar_bg_color=current_user.sidebar_bg_color,
+        text_color=current_user.text_color
+    )
 
 @main_bp.route("/save_user_settings", methods=["POST"])
 @login_required
