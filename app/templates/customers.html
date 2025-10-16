@@ -11,19 +11,60 @@
 </div>
 
 <ul class="list-group mt-3" id="customerList">
-  {% for customer in customers %}
-  <li class="list-group-item d-flex justify-content-between align-items-center">
-      <div class="customer-info">
-          <strong>{{ customer.name }}</strong> - Email: {{ customer.email }} | Phone: {{ customer.phone }} | Address: {{ customer.address }}
-      </div>
-      <div class="d-flex gap-2">
-          <a href="{{ url_for('main.view_customer', customer_id=customer.id) }}" class="btn btn-outline-primary btn-sm">View</a>
-          <a href="{{ url_for('main.edit_customer', customer_id=customer.id) }}" class="btn btn-outline-warning btn-sm">Edit</a>
-          <a href="{{ url_for('main.delete_customer', customer_id=customer.id) }}" 
-             class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure?');">Delete</a>
-      </div>
-  </li>
-  {% endfor %}
+    {% for customer in customers %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div class="customer-info">
+            <strong>{{ customer.name }}</strong> - Email: {{ customer.email }} | Phone: {{ customer.phone }} | Address: {{ customer.address }}
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('main.view_customer', customer_id=customer.id) }}" class="btn btn-outline-primary btn-sm">View</a>
+            <a href="{{ url_for('main.edit_customer', customer_id=customer.id) }}" class="btn btn-outline-warning btn-sm">Edit</a>
+            <a href="{{ url_for('main.delete_customer', customer_id=customer.id) }}" 
+               class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure?');">Delete</a>
+        </div>
+    </li>
+    {% endfor %}
 </ul>
 
-<a href="{{ url_for('main.add_customer') }}" class="
+<a href="{{ url_for('main.add_customer') }}" class="btn btn-primary mt-3">Add New Customer</a>
+<a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary mt-3">Back to Dashboard</a>
+
+<script>
+const searchInput = document.getElementById("customerSearch");
+const customerList = document.getElementById("customerList");
+
+searchInput.addEventListener("input", function() {
+    const query = this.value;
+
+    fetch(`/search_customers?q=${encodeURIComponent(query)}`)
+        .then(res => res.json())
+        .then(customers => {
+            // Clear current list
+            customerList.innerHTML = "";
+
+            if(customers.length === 0) {
+                customerList.innerHTML = "<li class='list-group-item'>No customers found.</li>";
+                return;
+            }
+
+            // Rebuild list
+            customers.forEach(c => {
+                const li = document.createElement("li");
+                li.className = "list-group-item d-flex justify-content-between align-items-center";
+                li.innerHTML = `
+                    <div class="customer-info">
+                        <strong>${c.name}</strong> - ${c.email}<br>
+                        <small>Phone: ${c.phone} | Address: ${c.address}</small>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="/customer/${c.id}" class="btn btn-outline-primary btn-sm">View</a>
+                        <a href="/edit_customer/${c.id}" class="btn btn-outline-warning btn-sm">Edit</a>
+                        <a href="/delete_customer/${c.id}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure?');">Delete</a>
+                    </div>
+                `;
+                customerList.appendChild(li);
+            });
+        });
+});
+</script>
+{% endblock %}
