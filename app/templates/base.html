@@ -64,11 +64,19 @@
 </nav>
 
 <!-- Left Sidebar -->
-<div class="sidebar">
-    <a href="{{ url_for('main.dashboard') }}" class="{% if request.endpoint == 'main.dashboard' %}active{% endif %}">Dashboard</a>
-    <a href="{{ url_for('main.customers') }}" class="{% if request.endpoint in ['main.customers', 'main.view_customer', 'main.edit_customer'] %}active{% endif %}">Customers</a>
-    <a href="{{ url_for('main.add_customer') }}" class="{% if request.endpoint == 'main.add_customer' %}active{% endif %}">Add Customer</a>
-    <a href="{{ url_for('main.activities') }}" class="{% if request.endpoint == 'main.activities' %}active{% endif %}">Activities</a>
+<div class="sidebar d-flex flex-column justify-content-between">
+    <!-- Top links -->
+    <div>
+        <a href="{{ url_for('main.dashboard') }}" class="{% if request.endpoint == 'main.dashboard' %}active{% endif %}">Dashboard</a>
+        <a href="{{ url_for('main.customers') }}" class="{% if request.endpoint in ['main.customers', 'main.view_customer', 'main.edit_customer'] %}active{% endif %}">Customers</a>
+        <a href="{{ url_for('main.add_customer') }}" class="{% if request.endpoint == 'main.add_customer' %}active{% endif %}">Add Customer</a>
+        <a href="{{ url_for('main.activities') }}" class="{% if request.endpoint == 'main.activities' %}active{% endif %}">Activities</a>
+    </div>
+
+    <!-- Bottom Settings link -->
+    <div class="mt-auto mb-3">
+        <a href="{{ url_for('main.settings') }}" class="{% if request.endpoint == 'main.settings' %}active{% endif %}">⚙️ Settings</a>
+    </div>
 </div>
 
 <!-- Main Content -->
