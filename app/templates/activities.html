@@ -89,10 +89,12 @@
         </div>
 
         <!-- Edit/Delete Buttons -->
-        <div class="activity-buttons btn-group btn-group-sm ms-2">
-            <button type="button" class="btn btn-outline-primary edit-btn" data-id="{{ act.id }}">Edit</button>
-            <a href="{{ url_for('main.delete_activity', activity_id=act.id) }}" 
-               class="btn btn-outline-danger" onclick="return confirm('Are you sure?');">Delete</a>
+        <div class="d-flex align-items-center gap-2" id="buttons-{{ act.id }}">
+            <button class="btn btn-sm btn-primary edit-btn" data-id="{{ act.id }}">Edit</button>
+            <form method="POST" action="{{ url_for('main.delete_activity', activity_id=act.id) }}" 
+                  onsubmit="return confirm('Are you sure?');">
+                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+            </form>
         </div>
 
         <!-- Inline Edit Form -->
