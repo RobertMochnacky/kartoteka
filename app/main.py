@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
 # app/main.py
 from .models import Customer, Activity, User
@@ -47,57 +47,9 @@ def dashboard():
         recent_limit=limit
     )
 
-@main_bp.route("/add_customer", methods=["GET", "POST"])
-@login_required
-def add_customer():
-    if request.method == "POST":
-        name = request.form["name"]
-        email = request.form["email"]
-        phone = request.form.get("phone") or "0000 000 000"  # default if empty
-        address = request.form.get("address") or "Unknown"    # default if empty
-
-        if not name or not email:
-            flash("Name and Email are required!")
-            return redirect(url_for("main.add_customer"))
-            
-        customer = Customer(
-            name=name,
-            email=email,
-            phone=phone,
-            address=address
-        )
-        db.session.add(customer)
-        db.session.commit()
-        flash("Customer added successfully!")
-        return redirect(url_for("main.customers"))
-        
-    return render_template("add_customer.html")
-
-@main_bp.route("/edit_customer/<int:customer_id>", methods=["GET", "POST"])
-@login_required
-def edit_customer(customer_id):
-    customer = Customer.query.get_or_404(customer_id)
-
-    if request.method == "POST":
-        customer.name = request.form.get("name")
-        customer.email = request.form.get("email")
-        customer.phone = request.form.get("phone") or "0000 000 000"
-        customer.address = request.form.get("address") or "Unknown"
-        db.session.commit()
-        flash("Customer updated!")
-        return redirect(url_for("main.view_customer", customer_id=customer.id))
-
-    return render_template("edit_customer.html", customer=customer)
-
-@main_bp.route("/delete_customer/<int:customer_id>")
-@login_required
-def delete_customer(customer_id):
-    customer = Customer.query.get_or_404(customer_id)
-    db.session.delete(customer)
-    db.session.commit()
-    flash("Customer deleted!")
-    return redirect(url_for("main.dashboard"))
-
+###################
+# Activities section
+###################
 @main_bp.route("/add_activity/<int:customer_id>", methods=["GET", "POST"])
 @login_required
 def add_activity(customer_id):
@@ -170,6 +122,29 @@ def edit_activity(activity_id):
 
     return render_template("edit_activity.html", activity=activity, customers=customers)
 
+@main_bp.route("/edit_activity_ajax/<int:activity_id>", methods=["POST"])
+@login_required
+def edit_activity_ajax(activity_id):
+    activity = Activity.query.get_or_404(activity_id)
+    text = request.form.get("text")
+    customer_id = request.form.get("customer_id")
+
+    if not text:
+        return jsonify({"success": False, "message": "Activity text is required."})
+
+    activity.text = text
+    if customer_id:
+        activity.customer_id = int(customer_id)
+    db.session.commit()
+
+    # Return updated info to update the DOM
+    return jsonify({
+        "success": True,
+        "text": activity.text,
+        "customer_name": activity.customer.name,
+        "timestamp": activity.timestamp.strftime('%Y-%m-%d %H:%M')
+    })
+    
 # Delete an activity
 @main_bp.route("/delete_activity/<int:activity_id>", methods=["POST", "GET"])
 @login_required
@@ -208,6 +183,10 @@ def activities():
                            filter_customer_id=customer_id, filter_text=text,
                            filter_start_date=start_date, filter_end_date=end_date)
 
+
+###################
+# Customers section
+###################
 @main_bp.route("/customers")
 @login_required
 def customers():
@@ -219,3 +198,54 @@ def customers():
 def view_customer(customer_id):
     customer = Customer.query.get_or_404(customer_id)
     return render_template("view_customer.html", customer=customer)
+
+@main_bp.route("/add_customer", methods=["GET", "POST"])
+@login_required
+def add_customer():
+    if request.method == "POST":
+        name = request.form["name"]
+        email = request.form["email"]
+        phone = request.form.get("phone") or "0000 000 000"  # default if empty
+        address = request.form.get("address") or "Unknown"    # default if empty
+
+        if not name or not email:
+            flash("Name and Email are required!")
+            return redirect(url_for("main.add_customer"))
+            
+        customer = Customer(
+            name=name,
+            email=email,
+            phone=phone,
+            address=address
+        )
+        db.session.add(customer)
+        db.session.commit()
+        flash("Customer added successfully!")
+        return redirect(url_for("main.customers"))
+        
+    return render_template("add_customer.html")
+
+@main_bp.route("/edit_customer/<int:customer_id>", methods=["GET", "POST"])
+@login_required
+def edit_customer(customer_id):
+    customer = Customer.query.get_or_404(customer_id)
+
+    if request.method == "POST":
+        customer.name = request.form.get("name")
+        customer.email = request.form.get("email")
+        customer.phone = request.form.get("phone") or "0000 000 000"
+        customer.address = request.form.get("address") or "Unknown"
+        db.session.commit()
+        flash("Customer updated!")
+        return redirect(url_for("main.view_customer", customer_id=customer.id))
+
+    return render_template("edit_customer.html", customer=customer)
+
+@main_bp.route("/delete_customer/<int:customer_id>")
+@login_required
+def delete_customer(customer_id):
+    customer = Customer.query.get_or_404(customer_id)
+    db.session.delete(customer)
+    db.session.commit()
+    flash("Customer deleted!")
+    return redirect(url_for("main.dashboard"))
