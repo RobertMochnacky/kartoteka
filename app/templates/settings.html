@@ -14,74 +14,146 @@
         </div>
         <div class="card-body">
           <div class="form-check form-switch mb-3">
-            <input class="form-check-input" type="checkbox" id="darkModeLocal">
-            <label class="form-check-label" for="darkModeLocal">Enable dark mode</label>
+            <input class="form-check-input" type="checkbox" id="darkModeToggle">
+            <label class="form-check-label" for="darkModeToggle">Enable dark mode</label>
           </div>
 
           <div class="mb-3">
-            <label for="accentColorLocal" class="form-label">Accent color</label>
-            <input type="color" id="accentColorLocal" class="form-control form-control-color"
-                   title="Choose your accent color" value="{{ primary_color or '#3a86ff' }}">
+            <label for="accentColor" class="form-label">Accent color</label>
+            <input type="color" id="accentColor" class="form-control form-control-color"
+                   title="Choose your accent color" value="{{ current_user.primary_color or '#3a86ff' }}">
+          </div>
+
+          <div class="mb-3">
+            <label for="sidebarColor" class="form-label">Sidebar background</label>
+            <input type="color" id="sidebarColor" class="form-control form-control-color"
+                   title="Choose your sidebar background color" value="{{ current_user.sidebar_bg_color or '#fff' }}">
+          </div>
+
+          <div class="mb-3">
+            <label for="textColor" class="form-label">Text color</label>
+            <input type="color" id="textColor" class="form-control form-control-color"
+                   title="Choose your text color" value="{{ current_user.text_color or '#212529' }}">
           </div>
         </div>
       </div>
 
-      <button id="saveSettings" class="btn btn-primary"><i class="bi bi-save me-1"></i> Save Preferences</button>
+      <!-- User Account Settings -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white fw-semibold">
+          <i class="bi bi-person-circle me-2 text-primary"></i>Account
+        </div>
+        <div class="card-body">
+          <p><strong>Username:</strong> {{ current_user.username }}</p>
+          <p><strong>Email:</strong> {{ current_user.email }}</p>
+          <hr>
+          <p class="text-muted">Account management features coming soon (e.g., password change, profile picture, etc.).</p>
+        </div>
+      </div>
+
+      <!-- Save Settings -->
+      <button id="saveSettings" class="btn btn-primary">
+        <i class="bi bi-save me-1"></i> Save Preferences
+      </button>
     </div>
   </div>
 </div>
-{% endblock %}
 
-{% block extra_scripts %}
 <script>
-  const darkToggleLocal = document.getElementById("darkModeLocal");
-  const accentPickerLocal = document.getElementById("accentColorLocal");
+  const darkToggle = document.getElementById("darkModeToggle");
+  const accentPicker = document.getElementById("accentColor");
+  const sidebarPicker = document.getElementById("sidebarColor");
+  const textPicker = document.getElementById("textColor");
   const root = document.documentElement;
 
-  // Load current user preferences
-  const theme = localStorage.getItem("theme");
-  const accent = localStorage.getItem("accentColor");
+  // Load saved preferences from localStorage or DB defaults
+  const savedTheme = localStorage.getItem("theme") || "{{ current_user.theme or 'light' }}";
+  const savedAccent = localStorage.getItem("accentColor") || "{{ current_user.primary_color or '#3a86ff' }}";
+  const savedSidebar = localStorage.getItem("sidebar_bg_color") || "{{ current_user.sidebar_bg_color or '#fff' }}";
+  const savedText = localStorage.getItem("text_color") || "{{ current_user.text_color or '#212529' }}";
 
-  if (theme === "dark") darkToggleLocal.checked = true;
-  if (accent) accentPickerLocal.value = accent;
+  // Initialize inputs and theme
+  accentPicker.value = savedAccent;
+  sidebarPicker.value = savedSidebar;
+  textPicker.value = savedText;
 
-  // Apply accent color live
-  function applyAccent(color) {
-    root.style.setProperty("--primary-color", color);
-    document.querySelectorAll(".btn-primary").forEach(el => el.style.backgroundColor = color);
-    document.querySelectorAll(".sidebar a.active").forEach(el => { el.style.borderLeftColor = color; el.style.color = color; });
+  if (savedTheme === "dark") {
+    document.body.classList.add("dark-mode");
+    darkToggle.checked = true;
   }
 
-  accentPickerLocal.addEventListener("input", () => applyAccent(accentPickerLocal.value));
-  darkToggleLocal.addEventListener("change", () => {
-    if (darkToggleLocal.checked) document.body.classList.add("dark-mode");
-    else document.body.classList.remove("dark-mode");
-  });
+  function applyColors(accent, sidebar, text) {
+    root.style.setProperty("--primary-color", accent);
+    root.style.setProperty("--sidebar-bg-light", sidebar);
+    root.style.setProperty("--text-dark", text);
 
-  // Save preferences
-  document.getElementById("saveSettings").addEventListener("click", async () => {
-    const color = accentPickerLocal.value;
-    const themeVal = darkToggleLocal.checked ? "dark" : "light";
-
-    localStorage.setItem("accentColor", color);
-    localStorage.setItem("theme", themeVal);
-
-    await fetch("{{ url_for('main.save_settings') }}", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        primary_color: color,
-        sidebar_bg_color: root.style.getPropertyValue("--sidebar-bg-light"),
-        text_color: root.style.getPropertyValue("--text-dark"),
-        theme: themeVal
-      })
+    // Buttons
+    document.querySelectorAll(".btn-primary").forEach(el => {
+      el.style.backgroundColor = accent;
+      el.style.borderColor = accent;
+      el.style.color = "#fff";
     });
 
-    const toast = document.createElement("div");
-    toast.className = "alert alert-success mt-3";
-    toast.innerText = "✅ Settings saved successfully!";
-    document.querySelector(".container-fluid").prepend(toast);
-    setTimeout(() => toast.remove(), 2000);
+    // Active sidebar links
+    document.querySelectorAll(".sidebar a.active").forEach(el => {
+      el.style.borderLeftColor = accent;
+      el.style.color = accent;
+    });
+
+    // Sidebar background & text
+    document.querySelectorAll(".sidebar").forEach(el => {
+      el.style.backgroundColor = sidebar;
+      el.style.color = text;
+    });
+  }
+
+  // Initial application
+  applyColors(savedAccent, savedSidebar, savedText);
+
+  // Listeners
+  accentPicker.addEventListener("input", () => applyColors(accentPicker.value, sidebarPicker.value, textPicker.value));
+  sidebarPicker.addEventListener("input", () => applyColors(accentPicker.value, sidebarPicker.value, textPicker.value));
+  textPicker.addEventListener("input", () => applyColors(accentPicker.value, sidebarPicker.value, textPicker.value));
+
+  darkToggle.addEventListener("change", () => {
+    if (darkToggle.checked) {
+      document.body.classList.add("dark-mode");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.body.classList.remove("dark-mode");
+      localStorage.setItem("theme", "light");
+    }
+  });
+
+  // Save settings
+  document.getElementById("saveSettings").addEventListener("click", async () => {
+    const settings = {
+      primary_color: accentPicker.value,
+      sidebar_bg_color: sidebarPicker.value,
+      text_color: textPicker.value,
+      theme: darkToggle.checked ? "dark" : "light"
+    };
+
+    // Save to localStorage
+    localStorage.setItem("accentColor", settings.primary_color);
+    localStorage.setItem("sidebar_bg_color", settings.sidebar_bg_color);
+    localStorage.setItem("text_color", settings.text_color);
+    localStorage.setItem("theme", settings.theme);
+
+    // Send to backend
+    const response = await fetch("{{ url_for('main.save_settings') }}", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(settings)
+    });
+
+    if (response.ok) {
+      const toast = document.createElement("div");
+      toast.className = "alert alert-success mt-3";
+      toast.innerText = "✅ Settings saved successfully!";
+      document.querySelector(".container-fluid").prepend(toast);
+      setTimeout(() => toast.remove(), 2000);
+    }
   });
 </script>
 {% endblock %}
