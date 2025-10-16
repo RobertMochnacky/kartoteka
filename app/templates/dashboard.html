@@ -1,49 +1,41 @@
 {% extends "base.html" %}
-
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
 <h2>Welcome, {{ current_user.username }}!</h2>
 
-<h3 class="mt-4">Recent Customers & Activities</h3>
+<h3 class="mt-4">Recent Customers</h3>
 {% if customers %}
-    <ul class="list-group">
+<ul class="list-group mb-4">
     {% for customer in customers %}
-        <li class="list-group-item">
-            <strong>{{ customer.name }}</strong> - {{ customer.email }}
-            {% if customer.activities %}
-                <ul>
-                {% for act in customer.activities %}
-                    <li>{{ act.text }} 
-                        <small class="text-muted">
-                            (created by {{ act.creator.username }} at {{ act.timestamp.strftime('%Y-%m-%d %H:%M') }})
-                        </small>
-                    </li>
-                {% endfor %}
-                </ul>
-            {% else %}
-                <p>No activities yet.</p>
-            {% endif %}
-            <div>
-                <a href="{{ url_for('main.view_customer', customer_id=customer.id) }}">View</a> |
-                <a href="{{ url_for('main.edit_customer', customer_id=customer.id) }}">Edit</a> |
-                <a href="{{ url_for('main.delete_customer', customer_id=customer.id) }}" 
-                   onclick="return confirm('Are you sure?');">Delete</a>
-            </div>
-        </li>
+    <li class="list-group-item">
+        <strong>{{ customer.name }}</strong> - {{ customer.email }}
+        <div>
+            <a href="{{ url_for('main.view_customer', customer_id=customer.id) }}">View</a> |
+            <a href="{{ url_for('main.edit_customer', customer_id=customer.id) }}">Edit</a>
+        </div>
+    </li>
     {% endfor %}
-    </ul>
+</ul>
 {% else %}
-    <p>No customers yet.</p>
+<p>No customers yet.</p>
 {% endif %}
 
-{% with messages = get_flashed_messages() %}
-    {% if messages %}
-        <ul class="alert alert-info mt-3">
-        {% for message in messages %}
-            <li>{{ message }}</li>
-        {% endfor %}
-        </ul>
-    {% endif %}
-{% endwith %}
+<h3 class="mt-4">Recent Activities</h3>
+{% if activities %}
+<ul class="list-group">
+    {% for act in activities %}
+    <li class="list-group-item">
+        <strong>{{ act.customer.name }}</strong> - {{ act.text }}
+        <br>
+        <small class="text-muted">
+            Added by {{ act.creator.username }} at {{ act.timestamp.strftime('%Y-%m-%d %H:%M') }}
+        </small>
+    </li>
+    {% endfor %}
+</ul>
+<a href="{{ url_for('main.activities') }}" class="btn btn-primary mt-3">View All Activities</a>
+{% else %}
+<p>No recent activities.</p>
+{% endif %}
 {% endblock %}
