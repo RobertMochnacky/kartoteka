@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Activities{% endblock %}
+{% block content %}
+<h2>All Activities</h2>
+{% if activities %}
+<ul class="list-group">
+  {% for act in activities %}
+  <li class="list-group-item">
+    {{ act.text }}<br>
+    <small class="text-muted">
+      Customer: {{ act.customer.name }} | Added by {{ act.creator.username }} at {{ act.timestamp.strftime('%Y-%m-%d %H:%M') }}
+    </small>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>No activities found.</p>
+{% endif %}
+{% endblock %}
