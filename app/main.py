@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 # app/main.py
-from .models import Customer
+from .models import Customer, Activity
 from . import db
 
 main_bp = Blueprint("main", __name__)
@@ -63,3 +63,35 @@ def delete_customer(customer_id):
     db.session.commit()
     flash("Customer deleted!")
     return redirect(url_for("main.dashboard"))
+
+@main_bp.route("/add_activity/<int:customer_id>", methods=["GET", "POST"])
+@login_required
+def add_activity(customer_id):
+    customer = Customer.query.get_or_404(customer_id)
+
+    if request.method == "POST":
+        text = request.form.get("text")
+
+        if not text:
+            flash("Activity text is required.", "danger")
+            return redirect(url_for("main.add_activity", customer_id=customer.id))
+
+        # Create the activity and assign current user as creator
+        activity = Activity(
+            text=text,
+            customer_id=customer.id,
+            creator_id=current_user.id
+        )
+        db.session.add(activity)
+        db.session.commit()
+
+        flash("Activity added successfully.", "success")
+        return redirect(url_for("main.view_customer", customer_id=customer.id))
+
+    return render_template("add_activity.html", customer=customer)
+
+@main_bp.route("/customer/<int:customer_id>")
+@login_required
+def view_customer(customer_id):
+    customer = Customer.query.get_or_404(customer_id)
+    return render_template("view_customer.html", customer=customer)
