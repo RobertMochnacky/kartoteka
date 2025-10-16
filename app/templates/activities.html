@@ -64,9 +64,9 @@
                 <label for="end_date" class="form-label">To</label>
                 <input type="date" name="end_date" id="end_date" class="form-control" value="{{ filter_end_date or '' }}">
             </div>
-            <div class="col-md-2 d-flex align-items-end">
+            <div class="col-md-2 d-flex align-items-end gap-2">
                 <button type="submit" class="btn btn-primary w-100">Filter</button>
-                <a href="{{ url_for('main.activities') }}" class="btn btn-secondary ms-2 w-100">Reset</a>
+                <a href="{{ url_for('main.activities') }}" class="btn btn-secondary w-100">Reset</a>
             </div>
         </form>
     </div>
@@ -80,7 +80,7 @@
     {% for act in activities %}
     <li class="list-group-item d-flex justify-content-between align-items-center" id="activity-{{ act.id }}">
         <!-- Activity Text -->
-        <div class="activity-text" style="flex:1;">
+        <div class="activity-text flex-grow-1">
             <span class="text-content">
                 <strong>{{ act.customer.name }}</strong> - {{ act.text }}
                 <br>
@@ -96,15 +96,22 @@
         </div>
 
         <!-- Inline Edit Form -->
-        <div class="inline-edit-form d-none d-flex gap-2 ms-2" style="flex:1;">
-            <select name="customer_id" class="form-select form-select-sm w-25">
-                {% for customer in customers %}
-                <option value="{{ customer.id }}" {% if customer.id == act.customer.id %}selected{% endif %}>{{ customer.name }}</option>
-                {% endfor %}
-            </select>
-            <input type="text" name="text" class="form-control form-control-sm w-50" value="{{ act.text }}" required>
-            <button type="button" class="btn btn-success btn-sm save-btn" data-id="{{ act.id }}">Save</button>
-            <button type="button" class="btn btn-secondary btn-sm cancel-btn">Cancel</button>
+        <div class="inline-edit-form d-none d-flex flex-grow-1 align-items-center gap-2">
+            <!-- Left side: Customer and Activity Inputs -->
+            <div class="d-flex gap-2 flex-grow-1">
+                <select name="customer_id" class="form-select form-select-sm w-25">
+                    {% for customer in customers %}
+                    <option value="{{ customer.id }}" {% if customer.id == act.customer.id %}selected{% endif %}>{{ customer.name }}</option>
+                    {% endfor %}
+                </select>
+                <input type="text" name="text" class="form-control form-control-sm flex-grow-1" value="{{ act.text }}" required>
+            </div>
+
+            <!-- Right side: Save/Cancel buttons -->
+            <div class="d-flex gap-1">
+                <button type="button" class="btn btn-success btn-sm save-btn" data-id="{{ act.id }}">Save</button>
+                <button type="button" class="btn btn-secondary btn-sm cancel-btn">Cancel</button>
+            </div>
         </div>
     </li>
     {% endfor %}
@@ -113,55 +120,51 @@
 <p>No activities found.</p>
 {% endif %}
 
+<!-- ========================= -->
+<!-- Inline Editing JavaScript -->
+<!-- ========================= -->
 <script>
-document.querySelectorAll('.edit-btn').forEach(button => {
-    button.addEventListener('click', () => {
-        const li = button.closest('li');
-        li.querySelector('.activity-buttons').classList.add('d-none');  // hide edit/delete
-        li.querySelector('.activity-text .text-content').classList.add('d-none'); // hide original text
-        li.querySelector('.inline-edit-form').classList.remove('d-none'); // show edit form
+document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll(".edit-btn").forEach(btn => {
+        btn.addEventListener("click", function() {
+            const li = btn.closest("li");
+            li.querySelector(".text-content").classList.add("d-none");
+            li.querySelector(".activity-buttons").classList.add("d-none");
+            li.querySelector(".inline-edit-form").classList.remove("d-none");
+        });
     });
-});
 
-document.querySelectorAll('.cancel-btn').forEach(button => {
-    button.addEventListener('click', () => {
-        const li = button.closest('li');
-        li.querySelector('.inline-edit-form').classList.add('d-none'); // hide edit form
-        li.querySelector('.activity-buttons').classList.remove('d-none'); // show buttons
-        li.querySelector('.activity-text .text-content').classList.remove('d-none'); // show original text
+    document.querySelectorAll(".cancel-btn").forEach(btn => {
+        btn.addEventListener("click", function() {
+            const li = btn.closest("li");
+            li.querySelector(".text-content").classList.remove("d-none");
+            li.querySelector(".activity-buttons").classList.remove("d-none");
+            li.querySelector(".inline-edit-form").classList.add("d-none");
+        });
     });
-});
 
-document.querySelectorAll('.save-btn').forEach(button => {
-    button.addEventListener('click', () => {
-        const li = button.closest('li');
-        const id = button.dataset.id;
-        const form = li.querySelector('.inline-edit-form');
-        const text = form.querySelector('input[name="text"]').value;
-        const customer_id = form.querySelector('select[name="customer_id"]').value;
+    document.querySelectorAll(".save-btn").forEach(btn => {
+        btn.addEventListener("click", function() {
+            const li = btn.closest("li");
+            const formData = new FormData();
+            const customer_id = li.querySelector("select[name='customer_id']").value;
+            const text = li.querySelector("input[name='text']").value;
+            formData.append("customer_id", customer_id);
+            formData.append("text", text);
 
-        fetch(`/edit_activity_ajax/${id}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams({ text, customer_id })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                const textContent = li.querySelector('.activity-text .text-content');
-                textContent.innerHTML = `<strong>${data.customer_name}</strong> - ${data.text} <br><small class="text-muted">Added by ${data.creator_name} at ${data.timestamp}</small>`;
-                form.classList.add('d-none');
-                li.querySelector('.activity-buttons').classList.remove('d-none');
-                textContent.classList.remove('d-none');
-            } else {
-                alert(data.message);
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            alert('An error occurred while saving.');
+            fetch(`/edit_activity/${btn.dataset.id}`, {
+                method: "POST",
+                body: formData,
+            }).then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert("Error updating activity");
+                }
+            });
         });
     });
 });
 </script>
+
 {% endblock %}
