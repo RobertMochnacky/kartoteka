@@ -5,81 +5,69 @@
     <title>{% block title %}Kartoteka{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* Full height sidebar */
-        body, html {
-            height: 100%;
+        body {
+            padding-top: 70px; /* space below navbar */
         }
         .sidebar {
             height: 100vh;
             position: fixed;
-            top: 56px; /* navbar height */
+            top: 70px; /* align below navbar */
             left: 0;
             width: 220px;
             padding-top: 20px;
             background-color: #f8f9fa;
+            border-right: 1px solid #ddd;
+        }
+        .sidebar a {
+            display: block;
+            padding: 10px 20px;
+            color: #333;
+            text-decoration: none;
+        }
+        .sidebar a:hover {
+            background-color: #e9ecef;
+            text-decoration: none;
         }
         .content {
-            margin-left: 220px;
-            padding-top: 20px;
-        }
-        .nav-link.active {
-            font-weight: bold;
-            color: #0d6efd !important;
+            margin-left: 230px; /* space for sidebar */
+            padding: 20px;
         }
     </style>
 </head>
 <body>
-
-<!-- Top Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
     <div class="container-fluid">
         <a class="navbar-brand" href="{{ url_for('main.dashboard') }}">Kartoteka</a>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav ms-auto">
                 {% if current_user.is_authenticated %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
-                </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
+                    </li>
                 {% else %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('auth.register') }}">Register</a>
-                </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('auth.register') }}">Register</a>
+                    </li>
                 {% endif %}
             </ul>
         </div>
     </div>
 </nav>
 
-<!-- Sidebar -->
+<!-- Left Sidebar -->
 <div class="sidebar">
-    <ul class="nav flex-column">
-        <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'main.dashboard' %}active{% endif %}" 
-               href="{{ url_for('main.dashboard') }}">
-                Dashboard
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'main.customers' %}active{% endif %}" 
-               href="{{ url_for('main.customers') }}">
-                Customers
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'main.add_customer' %}active{% endif %}" 
-               href="{{ url_for('main.add_customer') }}">
-                Add Customer
-            </a>
-        </li>
-        <!-- Add more sidebar links here -->
-    </ul>
+    <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+    <a href="{{ url_for('main.customers') }}">Customers</a>
+    <a href="{{ url_for('main.add_customer') }}">Add Customer</a>
+    <a href="{{ url_for('main.add_activity', customer_id=0) }}">Add Activity</a>
+    <!-- Add more links here -->
 </div>
 
 <!-- Main Content -->
-<div class="content container-fluid">
+<div class="content">
     {% with messages = get_flashed_messages() %}
         {% if messages %}
             <div class="alert alert-warning">
@@ -93,6 +81,5 @@
     {% block content %}{% endblock %}
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
