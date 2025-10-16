@@ -95,3 +95,9 @@ def add_activity(customer_id):
 def view_customer(customer_id):
     customer = Customer.query.get_or_404(customer_id)
     return render_template("view_customer.html", customer=customer)
+
+@main_bp.route("/activities")
+@login_required
+def activities():
+    all_activities = Activity.query.order_by(Activity.timestamp.desc()).all()
+    return render_template("activities.html", activities=all_activities)
