@@ -53,16 +53,23 @@ def add_customer():
     if request.method == "POST":
         name = request.form["name"]
         email = request.form["email"]
+        phone = request.form.get("phone") or "0000 000 000"  # default if empty
+        address = request.form.get("address") or "Unknown"    # default if empty
 
         if not name or not email:
             flash("Name and Email are required!")
             return redirect(url_for("main.add_customer"))
             
-        customer = Customer(name=name, email=email)
+        customer = Customer(
+            name=name,
+            email=email,
+            phone=phone,
+            address=address
+        )
         db.session.add(customer)
         db.session.commit()
         flash("Customer added successfully!")
-        return redirect(url_for("main.dashboard"))
+        return redirect(url_for("main.customers"))
         
     return render_template("add_customer.html")
 
@@ -72,11 +79,13 @@ def edit_customer(customer_id):
     customer = Customer.query.get_or_404(customer_id)
 
     if request.method == "POST":
-        customer.name = request.form["name"]
-        customer.email = request.form["email"]
+        customer.name = request.form.get("name")
+        customer.email = request.form.get("email")
+        customer.phone = request.form.get("phone") or "0000 000 000"
+        customer.address = request.form.get("address") or "Unknown"
         db.session.commit()
         flash("Customer updated!")
-        return redirect(url_for("main.dashboard"))
+        return redirect(url_for("main.view_customer", customer_id=customer.id))
 
     return render_template("edit_customer.html", customer=customer)
 
