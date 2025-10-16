@@ -12,13 +12,13 @@
       --sidebar-width: 230px;
       --sidebar-collapsed-width: 70px;
       --primary-color: #3a86ff;
-      --bg-light: #f9f9fb;
+      --bg-light: #f7f8fa;
       --bg-dark: #1e1e2f;
-      --text-dark: #333;
+      --text-dark: #212529;
       --text-light: #eee;
       --sidebar-bg-light: #fff;
       --sidebar-bg-dark: #2b2b3d;
-      --hover-light: #f1f3f5;
+      --hover-light: #e9f2ff;
       --hover-dark: #3b3b4f;
     }
 
@@ -27,12 +27,11 @@
       margin: 0;
       height: 100vh;
       overflow: hidden;
-      transition: background-color 0.3s ease, color 0.3s ease;
       background-color: var(--bg-light);
       color: var(--text-dark);
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
 
-    /* Dark mode */
     body.dark-mode {
       background-color: var(--bg-dark);
       color: var(--text-light);
@@ -47,12 +46,10 @@
       z-index: 1030;
       transition: background-color 0.3s ease, color 0.3s ease;
     }
-
     body.dark-mode .navbar {
       background-color: #2b2b3d;
-      border-bottom: 1px solid #444;
+      border-bottom-color: #444;
     }
-
     .navbar-brand {
       color: var(--primary-color) !important;
       font-weight: 600;
@@ -71,14 +68,13 @@
       flex-direction: column;
       justify-content: space-between;
       padding: 10px 0;
-      transition: width 0.3s ease, background-color 0.3s ease, color 0.3s ease;
       overflow: hidden;
+      transition: width 0.3s ease, background-color 0.3s ease, color 0.3s ease;
       z-index: 1020;
     }
-
     body.dark-mode .sidebar {
       background-color: var(--sidebar-bg-dark);
-      border-right: 1px solid #444;
+      border-right-color: #444;
     }
 
     .sidebar.collapsed {
@@ -98,30 +94,32 @@
       white-space: nowrap;
     }
 
+    .sidebar a i {
+      font-size: 18px;
+      min-width: 20px;
+      text-align: center;
+      color: #495057; /* dark icon for light mode */
+    }
+    body.dark-mode .sidebar a i {
+      color: #ddd; /* light icon for dark mode */
+    }
+
     .sidebar a:hover {
       background-color: var(--hover-light);
     }
-
     body.dark-mode .sidebar a:hover {
       background-color: var(--hover-dark);
     }
 
     .sidebar a.active {
-      background-color: #e9f2ff;
+      background-color: #d0e4ff;
       border-left: 3px solid var(--primary-color);
-      font-weight: 500;
       color: var(--primary-color);
+      font-weight: 500;
     }
-
     body.dark-mode .sidebar a.active {
       background-color: #3b3b4f;
       color: var(--primary-color);
-    }
-
-    .sidebar i {
-      font-size: 18px;
-      min-width: 20px;
-      text-align: center;
     }
 
     .sidebar.collapsed a span {
@@ -131,11 +129,9 @@
     .sidebar-bottom {
       border-top: 1px solid #e0e0e0;
       padding-top: 10px;
-      transition: border-color 0.3s ease;
     }
-
     body.dark-mode .sidebar-bottom {
-      border-top: 1px solid #444;
+      border-top-color: #444;
     }
 
     /* Content */
@@ -146,11 +142,9 @@
       overflow-y: auto;
       transition: margin-left 0.3s ease, background-color 0.3s ease, color 0.3s ease;
     }
-
     .sidebar.collapsed ~ .content {
       margin-left: var(--sidebar-collapsed-width);
     }
-
     body.dark-mode .content {
       background-color: var(--bg-dark);
       color: var(--text-light);
@@ -161,11 +155,11 @@
       background-color: var(--primary-color);
       border: none;
     }
-
     .btn-primary:hover {
       background-color: #2e6ed3;
     }
 
+    /* Sidebar toggle button */
     .toggle-btn {
       border: none;
       background: none;
@@ -175,15 +169,16 @@
       margin-right: 15px;
       transition: color 0.3s ease;
     }
-
     body.dark-mode .toggle-btn {
       color: var(--text-light);
     }
 
+    /* Form switches */
     .form-switch .form-check-input {
       cursor: pointer;
     }
 
+    /* Alerts */
     .alert {
       margin-bottom: 15px;
     }
@@ -246,7 +241,7 @@
     </div>
   </div>
 
-  <!-- Content -->
+  <!-- Main content -->
   <div class="content" id="content">
     {% with messages = get_flashed_messages() %}
     {% if messages %}
@@ -267,7 +262,7 @@
     const toggleBtn = document.getElementById("toggleSidebar");
     const themeToggle = document.getElementById("themeToggle");
 
-    // Sidebar persistence
+    // Sidebar collapse state
     if (localStorage.getItem("sidebar-collapsed") === "true") {
       sidebar.classList.add("collapsed");
       content.classList.add("collapsed");
@@ -279,7 +274,7 @@
       localStorage.setItem("sidebar-collapsed", sidebar.classList.contains("collapsed"));
     });
 
-    // Theme persistence
+    // Theme toggle state
     if (localStorage.getItem("theme") === "dark") {
       document.body.classList.add("dark-mode");
       themeToggle.checked = true;
