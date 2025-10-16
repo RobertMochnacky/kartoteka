@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Activities{% endblock %}
+{% block title %}{{_(Activities) }}{% endblock %}
 
 {% block content %}
 <h2>Activities</h2>
@@ -9,12 +9,12 @@
 <!-- ========================= -->
 <div class="card mb-4">
     <div class="card-header">
-        Add New Activity
+        {{ _(Add New Activity) }}
     </div>
     <div class="card-body">
         <form method="post" action="{{ url_for('main.add_activity_from_activities') }}" class="row g-3">
             <div class="col-md-4">
-                <label for="customer_id_new" class="form-label">Customer</label>
+                <label for="customer_id_new" class="form-label">{{ _(Customer) }}</label>
                 <select name="customer_id" id="customer_id_new" class="form-select" required>
                     {% for customer in customers %}
                         <option value="{{ customer.id }}">{{ customer.name }}</option>
