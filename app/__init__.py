@@ -26,7 +26,7 @@ def create_app():
     db.init_app(app)
     login_manager.init_app(app)
     migrate.init_app(app, db)
-    babel.init_app(app)
+    babel.init_app(app, default_locale="en", default_timezone="Europe/Bratislava")
 
     # Import models here to avoid circular imports
     from .models import User, Customer, Activity
