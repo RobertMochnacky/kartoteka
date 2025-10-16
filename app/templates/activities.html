@@ -1,20 +1,20 @@
 {% extends "base.html" %}
-{% block title %}{{_(Activities) }}{% endblock %}
+{% block title %}{{ _("Activities") }}{% endblock %}
 
 {% block content %}
-<h2>Activities</h2>
+<h2>{{ _("Activities") }}</h2>
 
 <!-- ========================= -->
 <!-- Add New Activity Section -->
 <!-- ========================= -->
 <div class="card mb-4">
     <div class="card-header">
-        {{ _(Add New Activity) }}
+        {{ _("Add New Activity") }}
     </div>
     <div class="card-body">
         <form method="post" action="{{ url_for('main.add_activity_from_activities') }}" class="row g-3">
             <div class="col-md-4">
-                <label for="customer_id_new" class="form-label">{{ _(Customer) }}</label>
+                <label for="customer_id_new" class="form-label">{{ _("Customer") }}</label>
                 <select name="customer_id" id="customer_id_new" class="form-select" required>
                     {% for customer in customers %}
                         <option value="{{ customer.id }}">{{ customer.name }}</option>
@@ -22,11 +22,11 @@
                 </select>
             </div>
             <div class="col-md-6">
-                <label for="activity_text" class="form-label">Activity Text</label>
+                <label for="activity_text" class="form-label">{{ _("Activity Text") }}</label>
                 <input type="text" name="activity_text" id="activity_text" class="form-control" required>
             </div>
             <div class="col-md-2 d-flex align-items-end">
-                <button type="submit" class="btn btn-success w-100">Add Activity</button>
+                <button type="submit" class="btn btn-success w-100">{{ _("Add Activity") }}</button>
             </div>
         </form>
     </div>
@@ -37,14 +37,14 @@
 <!-- ========================= -->
 <div class="card mb-4">
     <div class="card-header">
-        Filter Activities
+        {{ _("Filter Activities") }}
     </div>
     <div class="card-body">
         <form method="get" class="row g-3">
             <div class="col-md-3">
-                <label for="customer_id" class="form-label">Customer</label>
+                <label for="customer_id" class="form-label">{{ _("Customer") }}</label>
                 <select class="form-select" name="customer_id" id="customer_id">
-                    <option value="">All</option>
+                    <option value="">{{ _("All") }}</option>
                     {% for customer in customers %}
                     <option value="{{ customer.id }}" {% if filter_customer_id == customer.id %}selected{% endif %}>
                         {{ customer.name }}
@@ -53,20 +53,20 @@
                 </select>
             </div>
             <div class="col-md-3">
-                <label for="text" class="form-label">Activity Text</label>
+                <label for="text" class="form-label">{{ _("Activity Text") }}</label>
                 <input type="text" name="text" id="text" class="form-control" value="{{ filter_text or '' }}">
             </div>
             <div class="col-md-2">
-                <label for="start_date" class="form-label">From</label>
+                <label for="start_date" class="form-label">{{ _("From") }}</label>
                 <input type="date" name="start_date" id="start_date" class="form-control" value="{{ filter_start_date or '' }}">
             </div>
             <div class="col-md-2">
-                <label for="end_date" class="form-label">To</label>
+                <label for="end_date" class="form-label">{{ _("To") }}</label>
                 <input type="date" name="end_date" id="end_date" class="form-control" value="{{ filter_end_date or '' }}">
             </div>
             <div class="col-md-2 d-flex align-items-end gap-2">
-                <button type="submit" class="btn btn-primary w-100">Filter</button>
-                <a href="{{ url_for('main.activities') }}" class="btn btn-secondary w-100">Reset</a>
+                <button type="submit" class="btn btn-primary w-100">{{ _("Filter") }}</button>
+                <a href="{{ url_for('main.activities') }}" class="btn btn-secondary w-100">{{ _("Reset") }}</a>
             </div>
         </form>
     </div>
@@ -84,15 +84,15 @@
             <span class="text-content">
                 <strong>{{ act.customer.name }}</strong> - {{ act.text }}
                 <br>
-                <small class="text-muted">Added by {{ act.creator.username }} at {{ act.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+                <small class="text-muted">{{ _("Added by") }} {{ act.creator.username }} {{ _("at") }} {{ act.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
             </span>
         </div>
 
         <!-- Edit/Delete Buttons Separated -->
         <div class="d-flex gap-2">
-            <button type="button" class="btn btn-outline-primary btn-sm edit-btn" data-id="{{ act.id }}">Edit</button>
+            <button type="button" class="btn btn-outline-primary btn-sm edit-btn">{{ _("Edit") }}</button>
             <a href="{{ url_for('main.delete_activity', activity_id=act.id) }}" 
-               class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure?');">Delete</a>
+               class="btn btn-outline-danger btn-sm" onclick="return confirm('{{ _("Are you sure?") }}');">{{ _("Delete") }}</a>
         </div>
 
         <!-- Inline Edit Form -->
@@ -109,15 +109,15 @@
         
             <!-- Right side: Save/Cancel buttons -->
             <div class="d-flex gap-1 ms-2">
-                <button type="button" class="btn btn-success btn-sm save-btn" data-id="{{ act.id }}">Save</button>
-                <button type="button" class="btn btn-secondary btn-sm cancel-btn">Cancel</button>
+                <button type="button" class="btn btn-success btn-sm save-btn">{{ _("Save") }}</button>
+                <button type="button" class="btn btn-secondary btn-sm cancel-btn">{{ _("Cancel") }}</button>
             </div>
         </div>
     </li>
     {% endfor %}
 </ul>
 {% else %}
-<p>No activities found.</p>
+<p>{{ _("No activities found.") }}</p>
 {% endif %}
 
 <!-- ========================= -->
