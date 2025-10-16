@@ -1,22 +1,12 @@
 {% extends "base.html" %}
-
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
   <div class="row">
-    <!-- Sidebar toggle for small screens -->
-    <nav class="navbar navbar-light bg-light d-md-none">
-      <div class="container-fluid">
-        <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-          ☰ Menu
-        </button>
-      </div>
-    </nav>
-
     <!-- Sidebar -->
-    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-      <div class="position-sticky pt-3 sidebar-sticky">
+    <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+      <div class="position-sticky pt-3">
         <ul class="nav flex-column">
           <li class="nav-item">
             <a class="nav-link {% if request.endpoint == 'main.dashboard' %}active{% endif %}" 
@@ -24,29 +14,19 @@
               Dashboard
             </a>
           </li>
-
           <li class="nav-item">
-            <span class="nav-link disabled">Customers</span>
-            <ul class="nav flex-column ms-3">
-              {% for customer in customers %}
-              <li class="nav-item">
-                <a class="nav-link {% if request.args.get('customer_id', type=int) == customer.id %}active{% endif %}" 
-                   href="{{ url_for('main.view_customer', customer_id=customer.id) }}">
-                  {{ customer.name }} ({{ customer.activities|length }})
-                </a>
-              </li>
-              {% endfor %}
-            </ul>
+            <a class="nav-link {% if request.endpoint == 'main.customers' %}active{% endif %}" 
+               href="{{ url_for('main.customers') }}">
+              Customers
+            </a>
           </li>
-
           <li class="nav-item">
             <a class="nav-link {% if request.endpoint == 'main.activities' %}active{% endif %}" 
                href="{{ url_for('main.activities') }}">
               Activities
             </a>
           </li>
-
-          <li class="nav-item mt-3">
+          <li class="nav-item">
             <a class="nav-link" href="{{ url_for('auth.logout') }}">
               Logout
             </a>
@@ -57,12 +37,9 @@
 
     <!-- Main content -->
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h2">Welcome, {{ current_user.username }}!</h1>
-      </div>
+      <h2 class="mt-4">Welcome, {{ current_user.username }}!</h2>
 
-      <h3>Customers & Activities</h3>
-
+      <h3 class="mt-4">Customers</h3>
       {% if customers %}
       <ul class="list-group">
         {% for customer in customers %}
@@ -72,19 +49,17 @@
           <ul>
             {% for act in customer.activities %}
             <li>
-              {{ act.text }}<br>
-              <small class="text-muted">
-                Added by {{ act.creator.username }} at {{ act.timestamp.strftime('%Y-%m-%d %H:%M') }}
-              </small>
+              {{ act.text }} (by {{ act.creator.username }} at {{ act.timestamp.strftime('%Y-%m-%d %H:%M') }})
             </li>
             {% endfor %}
           </ul>
           {% else %}
           <p>No activities yet.</p>
           {% endif %}
-          <div>
+          <div class="mt-1">
             <a href="{{ url_for('main.edit_customer', customer_id=customer.id) }}">Edit</a> |
-            <a href="{{ url_for('main.delete_customer', customer_id=customer.id) }}" onclick="return confirm('Are you sure?');">Delete</a>
+            <a href="{{ url_for('main.delete_customer', customer_id=customer.id) }}" 
+               onclick="return confirm('Are you sure?');">Delete</a>
           </div>
         </li>
         {% endfor %}
