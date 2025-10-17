@@ -4,7 +4,21 @@
 {% block content %}
 <h2>{{ _("Welcome,") }} {{ current_user.username }}!</h2>
 
+<!-- ========================= -->
+<!-- Recent Customers Section -->
+<!-- ========================= -->
 <h3 class="mt-4">{{ _("Recent Customers") }}</h3>
+
+<!-- Dropdown to select how many recent customers to show -->
+<form method="get" class="mb-3">
+    <label for="customer_limit" class="form-label">{{ _("Show last customers:") }}</label>
+    <select name="customer_limit" id="customer_limit" class="form-select w-auto d-inline" onchange="this.form.submit()">
+        {% for n in [5,10,15,20,30] %}
+            <option value="{{ n }}" {% if n == customer_limit %}selected{% endif %}>{{ n }}</option>
+        {% endfor %}
+    </select>
+</form>
+
 {% if customers %}
 <ul class="list-group mb-4 rounded-0">
     {% for customer in customers %}
@@ -26,6 +40,9 @@
 <p>{{ _("No customers yet.") }}</p>
 {% endif %}
 
+<!-- ========================= -->
+<!-- Recent Activities Section -->
+<!-- ========================= -->
 <h3 class="mt-4">{{ _("Recent Activities") }}</h3>
 
 <!-- Dropdown to select how many recent activities to show -->
