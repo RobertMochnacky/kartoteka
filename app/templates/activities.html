@@ -26,7 +26,7 @@
                 <input type="text" name="activity_text" id="activity_text" class="form-control" required>
             </div>
             <div class="col-md-2 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary w-100">{{ _("Add Activity") }}</button>
+                <button type="submit" class="btn btn-primary w-100 rounded-0">{{ _("Add Activity") }}</button>
             </div>
         </form>
     </div>
@@ -65,8 +65,8 @@
                 <input type="date" name="end_date" id="end_date" class="form-control" value="{{ filter_end_date or '' }}">
             </div>
             <div class="col-md-2 d-flex align-items-end gap-2">
-                <button type="submit" class="btn btn-primary w-100">{{ _("Filter") }}</button>
-                <a href="{{ url_for('main.activities') }}" class="btn btn-secondary w-100">{{ _("Reset") }}</a>
+                <button type="submit" class="btn btn-primary w-100 rounded-0">{{ _("Filter") }}</button>
+                <a href="{{ url_for('main.activities') }}" class="btn btn-secondary w-100 rounded-0">{{ _("Reset") }}</a>
             </div>
         </form>
     </div>
