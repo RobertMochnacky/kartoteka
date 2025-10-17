@@ -22,12 +22,40 @@
       {% if customer.activities %}
         <ul class="list-group rounded-0">
           {% for act in customer.activities %}
-            <li class="list-group-item rounded-0">
-              {{ act.text }}<br>
-              <small class="text-muted">
-                {{ _("Added by") }} {{ act.creator.username }}
-                {{ _("on") }} {{ act.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
-              </small>
+            <li class="list-group-item rounded-0 d-flex justify-content-between align-items-center" id="activity-{{ act.id }}">
+              
+              <!-- Activity Text -->
+              <div class="activity-text flex-grow-1">
+                <span class="text-content">
+                  {{ act.text }}<br>
+                  <small class="text-muted">{{ _("Added by") }} {{ act.creator.username }} {{ _("on") }} {{ act.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</small>
+                </span>
+              </div>
+
+              <!-- Edit/Delete Buttons -->
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-outline-primary btn-sm edit-btn">{{ _("Edit") }}</button>
+                <a href="{{ url_for('main.delete_activity', activity_id=act.id) }}" 
+                   class="btn btn-outline-danger btn-sm" onclick="return confirm('{{ _('Are you sure?') }}');">{{ _("Delete") }}</a>
+              </div>
+
+              <!-- Inline Edit Form -->
+              <div class="inline-edit-form d-none d-flex justify-content-between align-items-center w-100 mt-2">
+                <div class="d-flex gap-2 flex-grow-1">
+                  <select name="customer_id" class="form-select form-select-sm" style="width: 150px;">
+                    {% for c in customers %}
+                      <option value="{{ c.id }}" {% if c.id == act.customer.id %}selected{% endif %}>{{ c.name }}</option>
+                    {% endfor %}
+                  </select>
+                  <input type="text" name="text" class="form-control form-control-sm flex-grow-1" value="{{ act.text }}" required>
+                </div>
+
+                <div class="d-flex gap-1 ms-2">
+                  <button type="button" class="btn btn-success btn-sm save-btn" data-id="{{ act.id }}">{{ _("Save") }}</button>
+                  <button type="button" class="btn btn-secondary btn-sm cancel-btn">{{ _("Cancel") }}</button>
+                </div>
+              </div>
+
             </li>
           {% endfor %}
         </ul>
@@ -48,4 +76,49 @@
   </div>
 
 </div>
+
+<!-- Inline Editing JavaScript -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll(".edit-btn").forEach(btn => {
+        btn.addEventListener("click", function() {
+            const li = btn.closest("li");
+            li.querySelector(".text-content").classList.add("d-none");
+            li.querySelector(".d-flex.gap-2").classList.add("d-none"); // hide edit/delete buttons
+            li.querySelector(".inline-edit-form").classList.remove("d-none");
+        });
+    });
+
+    document.querySelectorAll(".cancel-btn").forEach(btn => {
+        btn.addEventListener("click", function() {
+            const li = btn.closest("li");
+            li.querySelector(".text-content").classList.remove("d-none");
+            li.querySelector(".d-flex.gap-2").classList.remove("d-none"); // show edit/delete buttons
+            li.querySelector(".inline-edit-form").classList.add("d-none");
+        });
+    });
+
+    document.querySelectorAll(".save-btn").forEach(btn => {
+        btn.addEventListener("click", function() {
+            const li = btn.closest("li");
+            const formData = new FormData();
+            const customer_id = li.querySelector("select[name='customer_id']").value;
+            const text = li.querySelector("input[name='text']").value;
+            formData.append("customer_id", customer_id);
+            formData.append("text", text);
+
+            fetch(`/edit_activity/${btn.dataset.id}`, {
+                method: "POST",
+                body: formData,
+            }).then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert("{{ _('Error updating activity') }}");
+                }
+            });
+        });
+    });
+});
+</script>
 {% endblock %}
