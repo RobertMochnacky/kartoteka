@@ -113,6 +113,11 @@
 <p>{{ _("No activities found.") }}</p>
 {% endif %}
 
+<div class="mt-4">
+  <a href="{{ url_for('main.export_customers') }}" class="btn btn-primary rounded-0">{{ _("Export Customers") }}</a>
+  <a href="{{ url_for('main.import_customers') }}" class="btn btn-secondary rounded-0">{{ _("Import Customers") }}</a>
+</div>
+
 <!-- ========================= -->
 <!-- Inline Editing JavaScript -->
 <!-- ========================= -->
