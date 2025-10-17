@@ -72,12 +72,21 @@ def add_activity(customer_id):
 
     if request.method == "POST":
         text = request.form.get("text")
+        price_raw = request.form.get("price", "0.0")  # get as string
+
+        try:
+            price = float(price_raw)
+        except ValueError:
+            flash(gettext("Invalid price value."), "danger")
+            return redirect(url_for("main.add_activity", customer_id=customer.id))
+
         if not text:
             flash(gettext("Activity text is required."), "danger")
             return redirect(url_for("main.add_activity", customer_id=customer.id))
 
         activity = Activity(
             text=text,
+            price=price,
             customer_id=customer.id,
             creator_id=current_user.id
         )
@@ -93,6 +102,13 @@ def add_activity(customer_id):
 def add_activity_from_activities():
     customer_id = request.form.get("customer_id")
     text = request.form.get("activity_text")
+    price_raw = request.form.get("price", "0.0")  # get as string
+
+    try:
+        price = float(price_raw)
+    except ValueError:
+        flash(gettext("Invalid price value."), "danger")
+        return redirect(url_for("main.activities"))
 
     if not customer_id or not text:
         flash(gettext("Customer and Activity text are required."), "danger")
@@ -100,6 +116,7 @@ def add_activity_from_activities():
 
     activity = Activity(
         text=text,
+        price=price,
         customer_id=int(customer_id),
         creator_id=current_user.id
     )
@@ -117,14 +134,21 @@ def edit_activity(activity_id):
     if request.method == "POST":
         text = request.form.get("text")
         customer_id = request.form.get("customer_id")
+        try:
+            price = float(request.form.get("price", 0.0))
+        except ValueError:
+            flash(gettext("Invalid price value."), "danger")
+            return redirect(url_for("main.edit_activity", activity_id=activity.id))
 
         if not text:
             flash(gettext("Activity text is required."), "danger")
             return redirect(url_for("main.edit_activity", activity_id=activity.id))
 
         activity.text = text
+        activity.price = price  # update the price
         if customer_id:
             activity.customer_id = int(customer_id)
+
         db.session.commit()
         flash(gettext("Activity updated successfully."), "success")
         return redirect(url_for("main.activities"))
@@ -137,6 +161,7 @@ def edit_activity_ajax(activity_id):
     activity = Activity.query.get_or_404(activity_id)
     text = request.form.get("text")
     customer_id = request.form.get("customer_id")
+    
 
     if not text:
         return jsonify({"success": False, "message": gettext("Activity text is required.")})
