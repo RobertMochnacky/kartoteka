@@ -1,9 +1,14 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
+from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, send_file, Response
 from flask_login import login_required, current_user
 from .models import Customer, Activity, User
 from . import db
 from sqlalchemy import or_, and_
 from datetime import datetime
+import io
+import csv
+import pandas as pd
+from werkzeug.utils import secure_filename
+import os
 
 main_bp = Blueprint("main", __name__)
 
@@ -319,3 +324,77 @@ def save_settings():
     current_user.theme = data.get("theme", current_user.theme)
     db.session.commit()
     return jsonify({"status": "success"})
+
+# ----------------------------
+# Export Customers
+# ----------------------------
+@main_bp.route("/export/customers")
+@login_required
+def export_customers():
+    customers = Customer.query.all()
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["ID", "Name", "Email", "Phone", "Address"])
+    for c in customers:
+        writer.writerow([c.id, c.name, c.email, c.phone, c.address])
+    
+    output.seek(0)
+    return Response(
+        output,
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment;filename=customers.csv"}
+    )
+
+# ----------------------------
+# Export Activities
+# ----------------------------
+@main_bp.route("/export/activities")
+@login_required
+def export_activities():
+    activities = Activity.query.all()
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["ID", "CustomerID", "CustomerName", "Text", "Creator", "Timestamp"])
+    for a in activities:
+        writer.writerow([a.id, a.customer.id, a.customer.name, a.text, a.creator.username, a.timestamp])
+    
+    output.seek(0)
+    return Response(
+        output,
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment;filename=activities.csv"}
+    )
+
+ALLOWED_EXTENSIONS = {'csv'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@main_bp.route("/import/customers", methods=["GET", "POST"])
+@login_required
+def import_customers():
+    if request.method == "POST":
+        if "file" not in request.files:
+            flash("No file part")
+            return redirect(request.url)
+        file = request.files["file"]
+        if file.filename == "":
+            flash("No selected file")
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            df = pd.read_csv(file)
+            for _, row in df.iterrows():
+                # Optionally check if customer already exists by email
+                customer = Customer.query.filter_by(email=row["Email"]).first()
+                if not customer:
+                    customer = Customer(
+                        name=row["Name"],
+                        email=row["Email"],
+                        phone=row.get("Phone", ""),
+                        address=row.get("Address", "")
+                    )
+                    db.session.add(customer)
+            db.session.commit()
+            flash("Customers imported successfully")
+            return redirect(url_for("main.customers"))
+    return render_template("import_customers.html")
