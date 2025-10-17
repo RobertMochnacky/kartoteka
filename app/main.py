@@ -375,71 +375,50 @@ def allowed_file(filename):
 def import_customers():
     if request.method == "POST":
         if "file" not in request.files:
-            flash(_("No file part"), "danger")
+            flash(_("No file part"), "error")
             return redirect(request.url)
 
         file = request.files["file"]
         if file.filename == "":
-            flash(_("No selected file"), "danger")
+            flash(_("No selected file"), "error")
             return redirect(request.url)
 
         if file and allowed_file(file.filename):
-            import pandas as pd
-            import math
-
-            try:
-                df = pd.read_csv(file)
-            except Exception as e:
-                flash(_("Failed to read CSV file: ") + str(e), "danger")
-                return redirect(request.url)
-
+            df = pd.read_csv(file)
             added_count = 0
             skipped_count = 0
 
             for _, row in df.iterrows():
-                # Safely extract and normalize all values
-                name = str(row.get("Name", "") or "").strip()
-                email = row.get("Email", "")
-                phone = str(row.get("Phone", "") or "").strip()
-                address = str(row.get("Address", "") or "").strip()
+                name = str(row.get("Name", "")).strip()
+                email = str(row.get("Email", "")).strip().lower()
+                phone = str(row.get("Phone", "")).strip()
+                address = str(row.get("Address", "")).strip()
 
-                # Handle NaN / None / numeric float cases
-                if isinstance(email, float):
-                    if math.isnan(email):
-                        email = ""
-                    else:
-                        email = str(email)
-                else:
-                    email = str(email).strip()
-                    if email.lower() in ("nan", "none", "null"):
-                        email = ""
-
-                # Skip completely empty rows
-                if not any([name, email, phone, address]):
+                # Skip rows with no valid email
+                if not email or email.lower() in ["nan", "none"]:
                     skipped_count += 1
                     continue
 
-                # Check for existing customer (only if email is valid)
-                customer = Customer.query.filter_by(email=email).first() if email else None
+                # Skip if customer already exists
+                existing = Customer.query.filter_by(email=email).first()
+                if existing:
+                    skipped_count += 1
+                    continue
 
-                if not customer:
-                    new_customer = Customer(
-                        name=name,
-                        email=email,
-                        phone=phone,
-                        address=address
-                    )
-                    db.session.add(new_customer)
-                    added_count += 1
-                else:
-                    # Optionally update existing record
-                    customer.name = name or customer.name
-                    customer.phone = phone or customer.phone
-                    customer.address = address or customer.address
+                # Clean up NaN or placeholder values
+                if phone.lower() == "nan":
+                    phone = ""
+                if address.lower() == "nan":
+                    address = ""
+
+                customer = Customer(name=name, email=email, phone=phone, address=address)
+                db.session.add(customer)
+                added_count += 1
 
             db.session.commit()
+
             flash(
-                _("Customers imported successfully — %(added)d added, %(skipped)d skipped.", 
+                _("Customers imported successfully — %(added)d added, %(skipped)d skipped.",
                   added=added_count, skipped=skipped_count),
                 "success"
             )
@@ -466,7 +445,7 @@ def import_activities():
                     )
                     db.session.add(activity)
             db.session.commit()
-            flash("Activities imported successfully")
+            flash(_("Activities imported successfully"))
             return redirect(url_for("main.activities"))
     return render_template("import_activities.html")
 
