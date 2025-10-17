@@ -47,7 +47,7 @@
 
 <!-- Dropdown to select how many recent activities to show -->
 <form method="get" class="mb-3">
-    <label for="recent_limit" class="form-label">{{ _("Show last:") }}</label>
+    <label for="recent_limit" class="form-label">{{ _("Show last activities:") }}</label>
     <select name="recent_limit" id="recent_limit" class="form-select w-auto d-inline" onchange="this.form.submit()">
         {% for n in [5,10,15,20,30] %}
             <option value="{{ n }}" {% if n == recent_limit %}selected{% endif %}>{{ n }}</option>
@@ -92,7 +92,9 @@
 <p>{{ _("No recent activities.") }}</p>
 {% endif %}
 
+<!-- ========================= -->
 <!-- Inline Editing JavaScript -->
+<!-- ========================= -->
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     document.querySelectorAll(".edit-btn").forEach(btn => {
