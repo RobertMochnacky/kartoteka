@@ -286,7 +286,7 @@ def search_customers():
     query = request.args.get("q", "").strip()
     if query:
         customers = Customer.query.filter(
-            gettext(
+            or_(
                 Customer.name.ilike(f"%{query}%"),
                 Customer.email.ilike(f"%{query}%"),
                 Customer.phone.ilike(f"%{query}%"),
