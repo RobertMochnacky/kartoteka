@@ -1,12 +1,13 @@
 {% extends "base.html" %}
-{% block title %}Edit Activity{% endblock %}
+{% block title %}{{ _('Edit Activity') }}{% endblock %}
 
 {% block content %}
-<h2>Edit Activity</h2>
+<h2>{{ _('Edit Activity') }}</h2>
 
 <form method="POST" action="{{ url_for('main.edit_activity', activity_id=activity.id) }}">
+    <!-- Customer Select -->
     <div class="form-group">
-        <label for="customer_id">Customer</label>
+        <label for="customer_id">{{ _('Customer') }}</label>
         <select class="form-select" id="customer_id" name="customer_id">
             {% for customer in customers %}
             <option value="{{ customer.id }}" {% if customer.id == activity.customer_id %}selected{% endif %}>
@@ -15,14 +16,25 @@
             {% endfor %}
         </select>
     </div>
+
+    <!-- Activity Text -->
     <div class="form-group mt-2">
-        <label for="text">Activity Text</label>
+        <label for="text">{{ _('Activity Text') }}</label>
         <textarea class="form-control" id="text" name="text" required>{{ activity.text }}</textarea>
     </div>
-    <button type="submit" class="btn btn-primary mt-3">Save Changes</button>
-    <a href="{{ url_for('main.activities') }}" class="btn btn-secondary mt-3">Cancel</a>
+
+    <!-- Price Field -->
+    <div class="form-group mt-2">
+        <label for="price">{{ _('Price') }}</label>
+        <input type="number" step="0.01" class="form-control" id="price" name="price" value="{{ activity.price }}">
+    </div>
+
+    <!-- Buttons -->
+    <button type="submit" class="btn btn-primary mt-3">{{ _('Save Changes') }}</button>
+    <a href="{{ url_for('main.activities') }}" class="btn btn-secondary mt-3">{{ _('Cancel') }}</a>
 </form>
 
+<!-- Flash Messages -->
 {% with messages = get_flashed_messages() %}
 {% if messages %}
     <ul class="alert alert-info mt-2">
