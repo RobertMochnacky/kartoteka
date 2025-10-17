@@ -12,9 +12,11 @@
     </div>
 
     <div class="card-body rounded-0">
-      <p><strong>{{ _("Email") }}:</strong> {{ customer.email }}</p>
-      <p><strong>{{ _("Phone") }}:</strong> {{ customer.phone }}</p>
-      <p><strong>{{ _("Address") }}:</strong> {{ customer.address }}</p>
+      <p>
+        <strong>{{ _("Email") }}:</strong> {{ customer.email }} |
+        <strong>{{ _("Phone") }}:</strong> {{ customer.phone }} |
+        <strong>{{ _("Address") }}:</strong> {{ customer.address }}
+      </p>
 
       <h4 class="mt-4">{{ _("Activities") }}</h4>
       {% if customer.activities %}
