@@ -1,16 +1,30 @@
 {% extends "base.html" %}
-{% block title %}Add Activity{% endblock %}
+
+{% block title %}{{ _("Add Activity") }}{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
-  <h2>Add Activity for {{ customer.name }}</h2>
 
-  <form method="POST">
-    <div class="mb-3">
-      <label for="text" class="form-label">Activity Description</label>
-      <input type="text" class="form-control" id="text" name="text" placeholder="Describe activity..." required>
+  <h2 class="mb-4">{{ _("Add Activity for") }} {{ customer.name }}</h2>
+
+  <!-- Card Wrapper -->
+  <div class="card rounded-0 mb-4">
+    <div class="card-body">
+
+      <form method="POST">
+        <div class="mb-3">
+          <label for="text" class="form-label">{{ _("Activity Description") }}</label>
+          <input type="text" class="form-control rounded-0" id="text" name="text" placeholder="{{ _('Describe activity...') }}" required>
+        </div>
+
+        <div class="d-flex gap-2 mt-3">
+          <button type="submit" class="btn btn-primary rounded-0">{{ _("Add Activity") }}</button>
+          <a href="{{ url_for('main.view_customer', customer_id=customer.id) }}" class="btn btn-secondary rounded-0">{{ _("Back") }}</a>
+        </div>
+      </form>
+
     </div>
-    <button type="submit" class="btn btn-primary">Add Activity</button>
-    <a href="{{ url_for('main.view_customer', customer_id=customer.id) }}" class="btn btn-secondary">Back</a>
-  </form>
+  </div>
+
 </div>
 {% endblock %}
