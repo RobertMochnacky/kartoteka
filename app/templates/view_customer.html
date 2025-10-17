@@ -19,9 +19,9 @@
       </p>
 
       <h4 class="mt-4">{{ _("Activities") }}</h4>
-      {% if customer.activities %}
+      {% if activities %}
         <ul class="list-group rounded-0">
-          {% for act in customer.activities %}
+          {% for act in activities %}
             <li class="list-group-item rounded-0 d-flex justify-content-between align-items-center" id="activity-{{ act.id }}">
               
               <!-- Activity Text -->
