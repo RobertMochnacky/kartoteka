@@ -213,7 +213,14 @@ def customers():
 @login_required
 def view_customer(customer_id):
     customer = Customer.query.get_or_404(customer_id)
-    return render_template("view_customer.html", customer=customer)
+    # Fetch activities sorted by timestamp descending
+    activities = (
+        Activity.query
+        .filter_by(customer_id=customer.id)
+        .order_by(Activity.timestamp.desc())
+        .all()
+    )
+    return render_template("view_customer.html", customer=customer, activities=activities)
 
 @main_bp.route("/add_customer", methods=["GET", "POST"])
 @login_required
