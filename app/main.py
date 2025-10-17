@@ -388,9 +388,9 @@ def export_activities():
     activities = Activity.query.all()
     output = io.StringIO()
     writer = csv.writer(output)
-    writer.writerow(["ID", "CustomerID", "CustomerName", "Text", "Creator", "Timestamp"])
+    writer.writerow(["ID", "CustomerID", "CustomerName", "Text", "Price", "Creator", "Timestamp"])
     for a in activities:
-        writer.writerow([a.id, a.customer.id, a.customer.name, a.text, a.creator.username, a.timestamp])
+        writer.writerow([a.id, a.customer.id, a.customer.name, a.text, a.price, a.creator.username, a.timestamp])
     
     output.seek(0)
     return Response(
@@ -479,6 +479,7 @@ def import_activities():
                     activity = Activity(
                         customer_id=customer.id,
                         text=row["Text"],
+                        price=float(row.get("Price", 0.0)),
                         creator_id=creator.id,
                         timestamp=pd.to_datetime(row["Timestamp"])
                     )
