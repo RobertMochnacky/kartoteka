@@ -16,6 +16,10 @@
           <label for="text" class="form-label">{{ _("Activity Description") }}</label>
           <input type="text" class="form-control rounded-0" id="text" name="text" placeholder="{{ _('Describe activity...') }}" required>
         </div>
+        <div class="mb-3">
+          <label for="price" class="form-label">{{ _("Price") }}</label>
+          <input type="number" step="0.01" class="form-control" id="price" name="price" value="0.0">
+      </div>
 
         <div class="d-flex gap-2 mt-3">
           <button type="submit" class="btn btn-primary rounded-0">{{ _("Add Activity") }}</button>
