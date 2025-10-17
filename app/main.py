@@ -71,7 +71,7 @@ def add_activity(customer_id):
     if request.method == "POST":
         text = request.form.get("text")
         if not text:
-            flash("Activity text is required.", "danger")
+            flash(_("Activity text is required."), "danger")
             return redirect(url_for("main.add_activity", customer_id=customer.id))
 
         activity = Activity(
@@ -81,7 +81,7 @@ def add_activity(customer_id):
         )
         db.session.add(activity)
         db.session.commit()
-        flash("Activity added successfully.", "success")
+        flash(_("Activity added successfully."), "success")
         return redirect(url_for("main.view_customer", customer_id=customer.id))
 
     return render_template("add_activity.html", customer=customer)
@@ -93,7 +93,7 @@ def add_activity_from_activities():
     text = request.form.get("activity_text")
 
     if not customer_id or not text:
-        flash("Customer and Activity text are required.", "danger")
+        flash(_("Customer and Activity text are required."), "danger")
         return redirect(url_for("main.activities"))
 
     activity = Activity(
@@ -103,7 +103,7 @@ def add_activity_from_activities():
     )
     db.session.add(activity)
     db.session.commit()
-    flash("Activity added successfully.", "success")
+    flash(_("Activity added successfully."), "success")
     return redirect(url_for("main.activities"))
 
 @main_bp.route("/edit_activity/<int:activity_id>", methods=["GET", "POST"])
@@ -117,14 +117,14 @@ def edit_activity(activity_id):
         customer_id = request.form.get("customer_id")
 
         if not text:
-            flash("Activity text is required.", "danger")
+            flash(_("Activity text is required."), "danger")
             return redirect(url_for("main.edit_activity", activity_id=activity.id))
 
         activity.text = text
         if customer_id:
             activity.customer_id = int(customer_id)
         db.session.commit()
-        flash("Activity updated successfully.", "success")
+        flash(_("Activity updated successfully."), "success")
         return redirect(url_for("main.activities"))
 
     return render_template("edit_activity.html", activity=activity, customers=customers)
@@ -137,7 +137,7 @@ def edit_activity_ajax(activity_id):
     customer_id = request.form.get("customer_id")
 
     if not text:
-        return jsonify({"success": False, "message": "Activity text is required."})
+        return jsonify({"success": False, "message": _("Activity text is required.")})
 
     activity.text = text
     if customer_id:
@@ -157,7 +157,7 @@ def delete_activity(activity_id):
     activity = Activity.query.get_or_404(activity_id)
     db.session.delete(activity)
     db.session.commit()
-    flash("Activity deleted successfully.", "success")
+    flash(_("Activity deleted successfully."), "success")
     return redirect(url_for("main.activities"))
 
 @main_bp.route("/activities")
@@ -248,7 +248,7 @@ def add_customer():
         )
         db.session.add(customer)
         db.session.commit()
-        flash("Customer added successfully!")
+        flash(_("Customer added successfully!"))
         return redirect(url_for("main.customers"))
 
     return render_template("add_customer.html")
@@ -264,7 +264,7 @@ def edit_customer(customer_id):
         customer.phone = request.form.get("phone") or "0000 000 000"
         customer.address = request.form.get("address") or "Unknown"
         db.session.commit()
-        flash({{ _("Customer updated!") }})
+        flash(_("Customer updated!"))
         return redirect(url_for("main.view_customer", customer_id=customer.id))
 
     return render_template("edit_customer.html", customer=customer)
@@ -275,7 +275,7 @@ def delete_customer(customer_id):
     customer = Customer.query.get_or_404(customer_id)
     db.session.delete(customer)
     db.session.commit()
-    flash({{ _("Customer deleted!") }})
+    flash(_("Customer deleted!"))
     return redirect(url_for("main.customers"))
 
 @main_bp.route("/search_customers")
@@ -375,28 +375,72 @@ def allowed_file(filename):
 def import_customers():
     if request.method == "POST":
         if "file" not in request.files:
-            flash("No file part")
+            flash(_("No file part"), "danger")
             return redirect(request.url)
+
         file = request.files["file"]
         if file.filename == "":
-            flash("No selected file")
+            flash(_("No selected file"), "danger")
             return redirect(request.url)
+
         if file and allowed_file(file.filename):
-            df = pd.read_csv(file)
+            import pandas as pd
+            import math
+
+            try:
+                df = pd.read_csv(file)
+            except Exception as e:
+                flash(_("Failed to read CSV file: ") + str(e), "danger")
+                return redirect(request.url)
+
+            added_count = 0
+            skipped_count = 0
+
             for _, row in df.iterrows():
-                # Optionally check if customer already exists by email
-                customer = Customer.query.filter_by(email=row["Email"]).first()
+                # Safely extract and normalize all values
+                name = str(row.get("Name", "") or "").strip()
+                email = row.get("Email", "")
+                phone = str(row.get("Phone", "") or "").strip()
+                address = str(row.get("Address", "") or "").strip()
+
+                # Handle NaN / None / numeric float cases
+                if isinstance(email, float):
+                    if math.isnan(email):
+                        email = ""
+                    else:
+                        email = str(email)
+                else:
+                    email = str(email).strip()
+                    if email.lower() in ("nan", "none", "null"):
+                        email = ""
+
+                # Skip completely empty rows
+                if not any([name, email, phone, address]):
+                    skipped_count += 1
+                    continue
+
+                # Check for existing customer (only if email is valid)
+                customer = Customer.query.filter_by(email=email).first() if email else None
+
                 if not customer:
-                    customer = Customer(
-                        name=row["Name"],
-                        email=row["Email"],
-                        phone=row.get("Phone", ""),
-                        address=row.get("Address", "")
+                    new_customer = Customer(
+                        name=name,
+                        email=email,
+                        phone=phone,
+                        address=address
                     )
-                    db.session.add(customer)
+                    db.session.add(new_customer)
+                    added_count += 1
+                else:
+                    # Optionally update existing record
+                    customer.name = name or customer.name
+                    customer.phone = phone or customer.phone
+                    customer.address = address or customer.address
+
             db.session.commit()
-            flash("Customers imported successfully")
+            flash(_("Customers imported successfully —") {added_count} _("added"), {skipped_count} _("skipped."), "success")
             return redirect(url_for("main.customers"))
+
     return render_template("import_customers.html")
 
 @main_bp.route("/import/activities", methods=["GET", "POST"])
