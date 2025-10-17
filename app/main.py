@@ -9,7 +9,7 @@ import csv
 import pandas as pd
 from werkzeug.utils import secure_filename
 import os
-from flask_babel import _
+from flask_babel import gettext as _
 import uuid
 
 main_bp = Blueprint("main", __name__)
@@ -73,7 +73,7 @@ def add_activity(customer_id):
     if request.method == "POST":
         text = request.form.get("text")
         if not text:
-            flash(_("Activity text is required."), "danger")
+            flash(gettext("Activity text is required."), "danger")
             return redirect(url_for("main.add_activity", customer_id=customer.id))
 
         activity = Activity(
@@ -83,7 +83,7 @@ def add_activity(customer_id):
         )
         db.session.add(activity)
         db.session.commit()
-        flash(_("Activity added successfully."), "success")
+        flash(gettext("Activity added successfully."), "success")
         return redirect(url_for("main.view_customer", customer_id=customer.id))
 
     return render_template("add_activity.html", customer=customer)
@@ -95,7 +95,7 @@ def add_activity_from_activities():
     text = request.form.get("activity_text")
 
     if not customer_id or not text:
-        flash(_("Customer and Activity text are required."), "danger")
+        flash(gettext("Customer and Activity text are required."), "danger")
         return redirect(url_for("main.activities"))
 
     activity = Activity(
@@ -105,7 +105,7 @@ def add_activity_from_activities():
     )
     db.session.add(activity)
     db.session.commit()
-    flash(_("Activity added successfully."), "success")
+    flash(gettext("Activity added successfully."), "success")
     return redirect(url_for("main.activities"))
 
 @main_bp.route("/edit_activity/<int:activity_id>", methods=["GET", "POST"])
@@ -119,14 +119,14 @@ def edit_activity(activity_id):
         customer_id = request.form.get("customer_id")
 
         if not text:
-            flash(_("Activity text is required."), "danger")
+            flash(gettext("Activity text is required."), "danger")
             return redirect(url_for("main.edit_activity", activity_id=activity.id))
 
         activity.text = text
         if customer_id:
             activity.customer_id = int(customer_id)
         db.session.commit()
-        flash(_("Activity updated successfully."), "success")
+        flash(gettext("Activity updated successfully."), "success")
         return redirect(url_for("main.activities"))
 
     return render_template("edit_activity.html", activity=activity, customers=customers)
@@ -139,7 +139,7 @@ def edit_activity_ajax(activity_id):
     customer_id = request.form.get("customer_id")
 
     if not text:
-        return jsonify({"success": False, "message": _("Activity text is required.")})
+        return jsonify({"success": False, "message": gettext("Activity text is required.")})
 
     activity.text = text
     if customer_id:
@@ -159,7 +159,7 @@ def delete_activity(activity_id):
     activity = Activity.query.get_or_404(activity_id)
     db.session.delete(activity)
     db.session.commit()
-    flash(_("Activity deleted successfully."), "success")
+    flash(gettext("Activity deleted successfully."), "success")
     return redirect(url_for("main.activities"))
 
 @main_bp.route("/activities")
@@ -206,7 +206,7 @@ def customers():
     query = Customer.query
     if search_query:
         query = query.filter(
-            or_(
+            orgettext(
                 Customer.name.ilike(f"%{search_query}%"),
                 Customer.email.ilike(f"%{search_query}%"),
                 Customer.phone.ilike(f"%{search_query}%")
@@ -250,7 +250,7 @@ def add_customer():
         )
         db.session.add(customer)
         db.session.commit()
-        flash(_("Customer added successfully!"))
+        flash(gettext("Customer added successfully!"))
         return redirect(url_for("main.customers"))
 
     return render_template("add_customer.html")
@@ -266,7 +266,7 @@ def edit_customer(customer_id):
         customer.phone = request.form.get("phone") or "0000 000 000"
         customer.address = request.form.get("address") or "Unknown"
         db.session.commit()
-        flash(_("Customer updated!"))
+        flash(gettext("Customer updated!"))
         return redirect(url_for("main.view_customer", customer_id=customer.id))
 
     return render_template("edit_customer.html", customer=customer)
@@ -277,7 +277,7 @@ def delete_customer(customer_id):
     customer = Customer.query.get_or_404(customer_id)
     db.session.delete(customer)
     db.session.commit()
-    flash(_("Customer deleted!"))
+    flash(gettext("Customer deleted!"))
     return redirect(url_for("main.customers"))
 
 @main_bp.route("/search_customers")
@@ -286,7 +286,7 @@ def search_customers():
     query = request.args.get("q", "").strip()
     if query:
         customers = Customer.query.filter(
-            or_(
+            orgettext(
                 Customer.name.ilike(f"%{query}%"),
                 Customer.email.ilike(f"%{query}%"),
                 Customer.phone.ilike(f"%{query}%"),
@@ -377,12 +377,12 @@ def allowed_file(filename):
 def import_customers():    
     if request.method == "POST":
         if "file" not in request.files:
-            flash(_("No file part"), "warning")
+            flash(gettext("No file part"), "warning")
             return redirect(request.url)
 
         file = request.files["file"]
         if file.filename == "":
-            flash(_("No selected file"), "warning")
+            flash(gettext("No selected file"), "warning")
             return redirect(request.url)
 
         if file and allowed_file(file.filename):
@@ -393,7 +393,7 @@ def import_customers():
             skipped_count = 0
 
             for _, row in df.iterrows():
-                name = row.get("Name", "").strip() or _("Unnamed Customer")
+                name = row.get("Name", "").strip() or gettext("Unnamed Customer")
                 email = row.get("Email", "").strip()
                 phone = row.get("Phone", "").strip()
                 address = row.get("Address", "").strip()
@@ -423,11 +423,11 @@ def import_customers():
 
             db.session.commit()
 
-            flash(
-                _("Customers imported successfully — %(added)d added, %(skipped)d skipped.", 
-                  added=added_count, skipped=skipped_count),
-                "success"
-            )
+            flash(gettext(
+                "Customers imported successfully — %(added)d added, %(skipped)d skipped.",
+                added=added_count,
+                skipped=skipped_count
+            ), "success")
 
             return redirect(url_for("main.customers"))
 
@@ -452,7 +452,7 @@ def import_activities():
                     )
                     db.session.add(activity)
             db.session.commit()
-            flash(_("Activities imported successfully"))
+            flash(gettext("Activities imported successfully"))
             return redirect(url_for("main.activities"))
     return render_template("import_activities.html")
 
