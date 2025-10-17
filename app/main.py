@@ -398,3 +398,27 @@ def import_customers():
             flash("Customers imported successfully")
             return redirect(url_for("main.customers"))
     return render_template("import_customers.html")
+
+@main_bp.route("/import/activities", methods=["GET", "POST"])
+@login_required
+def import_activities():
+    if request.method == "POST":
+        file = request.files.get("file")
+        if file and allowed_file(file.filename):
+            df = pd.read_csv(file)
+            for _, row in df.iterrows():
+                customer = Customer.query.get(row["CustomerID"])
+                creator = User.query.filter_by(username=row["Creator"]).first()  # adjust as needed
+                if customer and creator:
+                    activity = Activity(
+                        customer_id=customer.id,
+                        text=row["Text"],
+                        creator_id=creator.id,
+                        timestamp=pd.to_datetime(row["Timestamp"])
+                    )
+                    db.session.add(activity)
+            db.session.commit()
+            flash("Activities imported successfully")
+            return redirect(url_for("main.activities"))
+    return render_template("import_activities.html")
+
