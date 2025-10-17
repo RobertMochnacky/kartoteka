@@ -25,6 +25,10 @@
                 <label for="activity_text" class="form-label">{{ _("Activity Text") }}</label>
                 <input type="text" name="activity_text" id="activity_text" class="form-control rounded-0" required>
             </div>
+            <div class="col-md-2">
+                <label for="activity_price" class="form-label">{{ _("Price") }}</label>
+                <input type="number" step="0.01" name="price" id="activity_price" class="form-control rounded-0" value="0.0">
+            </div>
             <div class="col-md-2 d-flex align-items-end">
                 <button type="submit" class="btn btn-primary w-100 rounded-0">{{ _("Add Activity") }}</button>
             </div>
@@ -95,6 +99,7 @@
                     {% endfor %}
                 </select>
                 <input type="text" name="text" class="form-control form-control-sm rounded-0" value="{{ act.text }}" required>
+                <input type="number" step="0.01" name="price" class="form-control form-control-sm rounded-0" value="{{ act.price }}">
                 <button type="button" class="btn btn-success btn-sm rounded-0 save-btn" data-id="{{ act.id }}">{{ _("Save") }}</button>
                 <button type="button" class="btn btn-secondary btn-sm rounded-0 cancel-btn">{{ _("Cancel") }}</button>
             </div>
@@ -147,22 +152,29 @@ document.addEventListener("DOMContentLoaded", function() {
             const formData = new FormData();
             const customer_id = li.querySelector("select[name='customer_id']").value;
             const text = li.querySelector("input[name='text']").value;
+            const price = li.querySelector("input[name='price']").value;
             formData.append("customer_id", customer_id);
             formData.append("text", text);
+            formData.append("price", price);
 
-            fetch(`/edit_activity/${btn.dataset.id}`, {
+            fetch(`/edit_activity_ajax/${btn.dataset.id}`, {
                 method: "POST",
                 body: formData,
-            }).then(response => {
-                if (response.ok) {
-                    location.reload();
-                } else {
-                    alert("{{ _('Error updating activity') }}");
-                }
-            });
+            }).then(response => response.json())
+              .then(data => {
+                  if (data.success) {
+                      li.querySelector(".text-content").innerHTML =
+                          `<strong>${data.customer_name}</strong> - ${data.text} - {{ _("Price") }}: ${parseFloat(data.price).toFixed(2)}
+                          <br><small class="text-muted">{{ _("Added by") }} ${data.creator_username} {{ _("at") }} ${data.timestamp}</small>`;
+                      li.querySelector(".text-content").classList.remove("d-none");
+                      li.querySelector(".inline-edit-form").classList.add("d-none");
+                      li.querySelector(".d-flex.ms-2").classList.remove("d-none");
+                  } else {
+                      alert(data.message);
+                  }
+              });
         });
     });
 });
 </script>
-
 {% endblock %}
