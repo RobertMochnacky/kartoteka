@@ -1,50 +1,17 @@
 {% extends "base.html" %}
 
-{% block title %}{{ _("Import Data") }}{% endblock %}
+{% block title %}{{ _("Import Activities") }}{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-
-  <h2>{{ _("Import Customers & Activities") }}</h2>
-  <p>{{ _("Upload a CSV file to import customers and their activities. Ensure the CSV has the correct format.") }}</p>
-
-  {% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    {% for category, message in messages %}
-      <div class="alert alert-{{ category }} rounded-0">{{ message }}</div>
-    {% endfor %}
-  {% endif %}
-  {% endwith %}
-
-  <div class="card rounded-0 mb-4">
-    <div class="card-header rounded-0">{{ _("Upload CSV File") }}</div>
-    <div class="card-body">
-      <form method="POST" action="{{ url_for('main.import_data') }}" enctype="multipart/form-data">
-        <div class="mb-3">
-          <label for="csv_file" class="form-label">{{ _("Select CSV File") }}</label>
-          <input type="file" class="form-control rounded-0" id="csv_file" name="csv_file" accept=".csv" required>
-        </div>
-        <button type="submit" class="btn btn-primary rounded-0">{{ _("Import") }}</button>
-        <a href="{{ url_for('main.export_data') }}" class="btn btn-secondary rounded-0">{{ _("Download Template / Export Data") }}</a>
-      </form>
-    </div>
-  </div>
-
-  <div class="card rounded-0">
-    <div class="card-header rounded-0">{{ _("CSV Format Guidelines") }}</div>
-    <div class="card-body">
-      <p>{{ _("The CSV file should include the following columns:") }}</p>
-      <ul>
-        <li>{{ _("Customer Name") }}</li>
-        <li>{{ _("Email") }}</li>
-        <li>{{ _("Phone") }}</li>
-        <li>{{ _("Address") }}</li>
-        <li>{{ _("Activity Text") }}</li>
-        <li>{{ _("Activity Timestamp (optional, YYYY-MM-DD HH:MM:SS)") }}</li>
-      </ul>
-      <p>{{ _("Empty activity rows will create only the customer record.") }}</p>
-    </div>
-  </div>
-
+  <h2>{{ _("Import Activities") }}</h2>
+  <form method="post" enctype="multipart/form-data">
+      <div class="mb-3">
+          <label for="file" class="form-label">{{ _("CSV File") }}</label>
+          <input type="file" name="file" id="file" class="form-control" accept=".csv" required>
+      </div>
+      <button type="submit" class="btn btn-primary rounded-0">{{ _("Import") }}</button>
+      <a href="{{ url_for('main.activities') }}" class="btn btn-secondary rounded-0">{{ _("Back") }}</a>
+  </form>
 </div>
 {% endblock %}
