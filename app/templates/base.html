@@ -88,11 +88,28 @@
 
     .btn-primary { background-color: var(--primary-color); border: none; color: #fff; }
     .btn-primary:hover { background-color: var(--primary-color); opacity: 0.85; }
+    
+    /* === Make rounded-0 primary/secondary buttons visually identical ===
+   Apply only to the non-rounded buttons used in forms/rows where you want exact matching.
+   We target .rounded-0 so it won't affect other Bootstrap buttons you intentionally left rounded.
+    */
     .btn-primary.rounded-0,
-    .btn-secondary.rounded-0 {
-      padding: 0.5rem 1rem !important;
+    .btn-secondary.rounded-0,
+    .btn-outline-primary.rounded-0,
+    .btn-outline-secondary.rounded-0 {
+      box-sizing: border-box;              /* include border in size calculations */
+      display: inline-flex;                /* centers text vertically reliably */
+      align-items: center;
+      justify-content: center;
+      padding: 0.45rem 0.95rem !important; /* tweak as needed for visual balance */
       font-size: 1rem !important;
+      line-height: 1.2 !important;
+      min-height: 38px;                    /* forces identical visual height */
+      height: auto;                        /* keep flexible height but ensure minimum */
       border-width: 1px !important;
+      border-style: solid !important;
+      /* make borders visually identical even if colors differ */
+      border-color: rgba(0,0,0,0.08) !important;
     }
     
     .toggle-btn { border: none; background: none; color: var(--text-dark); font-size: 1.3rem; cursor: pointer; margin-right: 15px; transition: color 0.3s ease; }
