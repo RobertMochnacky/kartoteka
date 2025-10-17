@@ -111,6 +111,26 @@
       /* make borders visually identical even if colors differ */
       border-color: rgba(0,0,0,0.08) !important;
     }
+
+    /* Make all small outline buttons perfectly aligned in flex groups */
+    .btn-sm.rounded-0 {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding-top: 0.35rem !important;
+      padding-bottom: 0.35rem !important;
+      line-height: 1.25 !important;
+      min-height: 32px; /* ensures uniform height */
+      font-size: 0.875rem;
+    }
+    
+    /* Ensure outline variants render consistently */
+    .btn-outline-primary.rounded-0,
+    .btn-outline-warning.rounded-0,
+    .btn-outline-danger.rounded-0 {
+      border-width: 1px !important;
+      box-sizing: border-box;
+    }
     
     .toggle-btn { border: none; background: none; color: var(--text-dark); font-size: 1.3rem; cursor: pointer; margin-right: 15px; transition: color 0.3s ease; }
     body.dark-mode .toggle-btn { color: var(--text-light); }
