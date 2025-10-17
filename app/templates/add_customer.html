@@ -1,42 +1,51 @@
 {% extends "base.html" %}
 
-{% block title %}Add Customer{% endblock %}
+{% block title %}{{ _("Add Customer") }}{% endblock %}
 
 {% block content %}
-<h2>Add New Customer</h2>
+<h2 class="mb-4">{{ _("Add New Customer") }}</h2>
 
-<form method="POST" action="{{ url_for('main.add_customer') }}">
-    <div class="form-group">
-        <label for="name">Customer Name</label>
-        <input type="text" class="form-control" id="name" name="name" required>
+<div class="card rounded-0 mb-4">
+    <div class="card-header rounded-0">
+        {{ _("Customer Information") }}
     </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('main.add_customer') }}">
+            <div class="form-group">
+                <label for="name">{{ _("Customer Name") }}</label>
+                <input type="text" class="form-control rounded-0" id="name" name="name" required>
+            </div>
 
-    <div class="form-group mt-2">
-        <label for="email">Email</label>
-        <input type="email" class="form-control" id="email" name="email" required>
+            <div class="form-group mt-2">
+                <label for="email">{{ _("Email") }}</label>
+                <input type="email" class="form-control rounded-0" id="email" name="email" required>
+            </div>
+
+            <div class="form-group mt-2">
+                <label for="phone">{{ _("Phone") }}</label>
+                <input type="text" class="form-control rounded-0" id="phone" name="phone" placeholder="000-000-0000">
+            </div>
+
+            <div class="form-group mt-2">
+                <label for="address">{{ _("Address") }}</label>
+                <input type="text" class="form-control rounded-0" id="address" name="address" placeholder="Customer address">
+            </div>
+
+            <div class="mt-3">
+                <button type="submit" class="btn btn-primary rounded-0">{{ _("Add Customer") }}</button>
+                <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary rounded-0">{{ _("Cancel") }}</a>
+            </div>
+        </form>
+
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul class="alert alert-info mt-3 rounded-0">
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+        {% endwith %}
     </div>
-
-    <div class="form-group mt-2">
-        <label for="phone">Phone</label>
-        <input type="text" class="form-control" id="phone" name="phone" placeholder="000-000-0000">
-    </div>
-
-    <div class="form-group mt-2">
-        <label for="address">Address</label>
-        <input type="text" class="form-control" id="address" name="address" placeholder="Customer address">
-    </div>
-
-    <button type="submit" class="btn btn-primary mt-3">Add Customer</button>
-    <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary mt-3">Cancel</a>
-</form>
-
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-    <ul class="alert alert-info mt-2">
-    {% for message in messages %}
-        <li>{{ message }}</li>
-    {% endfor %}
-    </ul>
-{% endif %}
-{% endwith %}
+</div>
 {% endblock %}
