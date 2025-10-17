@@ -8,7 +8,7 @@
 <!-- Add New Activity Section -->
 <!-- ========================= -->
 <div class="card mb-4 rounded-0">
-    <div class="card-header sidebar_bg_color rounded-0">
+    <div class="card-header rounded-0">
         {{ _("Add New Activity") }}
     </div>
     <div class="card-body">
@@ -36,7 +36,7 @@
 <!-- Filter Activities Section -->
 <!-- ========================= -->
 <div class="card mb-4 rounded-0">
-    <div class="card-header sidebar_bg_color rounded-0">
+    <div class="card-header rounded-0">
         {{ _("Filter Activities") }}
     </div>
     <div class="card-body">
@@ -76,7 +76,7 @@
 <!-- Activities List Section -->
 <!-- ========================= -->
 {% if activities %}
-<ul class="list-group">
+<ul class="list-group rounded-0">
     {% for act in activities %}
     <li class="list-group-item d-flex justify-content-between align-items-center" id="activity-{{ act.id }}">
         <!-- Activity Text -->
