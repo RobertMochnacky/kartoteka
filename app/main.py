@@ -159,21 +159,28 @@ def edit_activity(activity_id):
 @login_required
 def edit_activity_ajax(activity_id):
     activity = Activity.query.get_or_404(activity_id)
+    
     text = request.form.get("text")
     customer_id = request.form.get("customer_id")
-    
+    price = request.form.get("price", type=float) or 0.0
 
     if not text:
-        return jsonify({"success": False, "message": gettext("Activity text is required.")})
+        return jsonify({
+            "success": False,
+            "message": gettext("Activity text is required.")
+        })
 
     activity.text = text
+    activity.price = price
     if customer_id:
         activity.customer_id = int(customer_id)
+    
     db.session.commit()
 
     return jsonify({
         "success": True,
         "text": activity.text,
+        "price": activity.price,
         "customer_name": activity.customer.name,
         "timestamp": activity.timestamp.strftime('%Y-%m-%d %H:%M')
     })
