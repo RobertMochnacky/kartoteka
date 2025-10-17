@@ -373,62 +373,57 @@ def allowed_file(filename):
 
 @main_bp.route("/import/customers", methods=["GET", "POST"])
 @login_required
-def import_customers():
+def import_customers():    
     if request.method == "POST":
         if "file" not in request.files:
-            flash(_("No file part"), "error")
+            flash(_("No file part"), "warning")
             return redirect(request.url)
 
         file = request.files["file"]
         if file.filename == "":
-            flash(_("No selected file"), "error")
+            flash(_("No selected file"), "warning")
             return redirect(request.url)
 
         if file and allowed_file(file.filename):
-            df = pd.read_csv(file)
+            df = pd.read_csv(file, dtype=str)  # force all columns as strings
+            df = df.fillna("")  # replace NaN with empty strings
+
             added_count = 0
             skipped_count = 0
 
-            for idx, row in df.iterrows():  # ✅ renamed from "_"
-                name = str(row.get("Name", "")).strip()
-                email = str(row.get("Email", "")).strip().lower()
-                phone = str(row.get("Phone", "")).strip()
-                address = str(row.get("Address", "")).strip()
+            for _, row in df.iterrows():
+                name = row.get("Name", "").strip() or _("Unnamed Customer")
+                email = row.get("Email", "").strip()
+                phone = row.get("Phone", "").strip()
+                address = row.get("Address", "").strip()
 
-                # Clean invalid values
-                for field in ["email", "phone", "address"]:
-                    value = locals()[field]
-                    if value.lower() in ["nan", "none", "null", ""]:
-                        locals()[field] = ""
-
-                # Assign unique placeholders
+                # ✅ If all are empty, generate unique placeholder values
                 if not email:
-                    email = f"noemail-{uuid.uuid4().hex[:8]}@placeholder.local"
+                    email = f"placeholder_{uuid.uuid4().hex[:8]}@example.com"
                 if not phone:
                     phone = f"000-{uuid.uuid4().hex[:4]}"
                 if not address:
-                    address = _("No address provided")
+                    address = f"Unknown Address {uuid.uuid4().hex[:4]}"
 
-                # Skip duplicates
+                # ✅ Check for existing by email only if valid (not placeholder)
                 existing = Customer.query.filter_by(email=email).first()
                 if existing:
                     skipped_count += 1
                     continue
 
                 customer = Customer(
-                    name=name or _("Unnamed Customer"),
+                    name=name,
                     email=email,
                     phone=phone,
-                    address=address,
+                    address=address
                 )
                 db.session.add(customer)
                 added_count += 1
 
             db.session.commit()
 
-            # ✅ Babel-safe flash message
             flash(
-                _("Customers imported successfully — %(added)d added, %(skipped)d skipped.",
+                _("Customers imported successfully — %(added)d added, %(skipped)d skipped.", 
                   added=added_count, skipped=skipped_count),
                 "success"
             )
