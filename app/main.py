@@ -9,7 +9,7 @@ import csv
 import pandas as pd
 from werkzeug.utils import secure_filename
 import os
-from flask_babel import gettext as _
+from flask_babel import gettext, _
 import uuid
 
 main_bp = Blueprint("main", __name__)
