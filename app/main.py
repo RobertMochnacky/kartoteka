@@ -37,21 +37,32 @@ def index():
 @main_bp.route("/dashboard")
 @login_required
 def dashboard():
-    customers = Customer.query.all()
+    # Define allowed limits
+    allowed_limits = [5, 10, 15, 20, 30]
 
+    # Get customer limit from query params
     try:
-        limit = int(request.args.get("recent_limit", 5))
-    except ValueError:
-        limit = 5
+        customer_limit = int(request.args.get("customer_limit", 5))
+    except (ValueError, TypeError):
+        customer_limit = 5
+    if customer_limit not in allowed_limits:
+        customer_limit = 5
 
-    if limit not in [5, 10, 15, 20, 30]:
-        limit = 5
+    # Get recent activities limit from query params
+    try:
+        recent_limit = int(request.args.get("recent_limit", 5))
+    except (ValueError, TypeError):
+        recent_limit = 5
+    if recent_limit not in allowed_limits:
+        recent_limit = 5
 
+    # Fetch recent customers and activities with separate limits
+    customers = Customer.query.order_by(Customer.id.desc()).limit(customer_limit).all()
     activities = (
         Activity.query.join(Customer)
         .join(User)
         .order_by(Activity.timestamp.desc())
-        .limit(limit)
+        .limit(recent_limit)
         .all()
     )
 
@@ -59,7 +70,9 @@ def dashboard():
         "dashboard.html",
         customers=customers,
         activities=activities,
-        recent_limit=limit
+        customer_limit=customer_limit,
+        recent_limit=recent_limit,
+        allowed_limits=allowed_limits
     )
 
 # -----------------------------
