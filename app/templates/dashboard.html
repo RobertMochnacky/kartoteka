@@ -4,33 +4,33 @@
 {% block content %}
 <h2>Welcome, {{ current_user.username }}!</h2>
 
-<h3 class="mt-4">Recent Customers</h3>
+<h3 class="mt-4">{{ _("Recent Customers") }}</h3>
 {% if customers %}
 <ul class="list-group mb-4 rounded-0">
     {% for customer in customers %}
-    <li class="list-group-item d-flex justify-content-between align-items-center">
+    <li class="list-group-item d-flex justify-content-between align-items-center rounded-0">
         <!-- Customer Info -->
         <div>
-            <strong>{{ customer.name }}</strong> - Email: {{ customer.email }} | Phone: {{ customer.phone }} | Address: {{ customer.address }}
+            <strong>{{ customer.name }}</strong> — {{ _("Email") }}: {{ customer.email }} | {{ _("Phone") }}: {{ customer.phone }} | {{ _("Address") }}: {{ customer.address }}
         </div>
 
         <!-- Action Buttons -->
         <div class="d-flex gap-1">
-            <a href="{{ url_for('main.view_customer', customer_id=customer.id) }}" class="btn btn-sm btn-outline-primary">View</a>
-            <a href="{{ url_for('main.edit_customer', customer_id=customer.id) }}" class="btn btn-sm btn-outline-warning">Edit</a>
+            <a href="{{ url_for('main.view_customer', customer_id=customer.id) }}" class="btn btn-sm btn-outline-primary rounded-0">{{ _("View") }}</a>
+            <a href="{{ url_for('main.edit_customer', customer_id=customer.id) }}" class="btn btn-sm btn-outline-warning rounded-0">{{ _("Edit") }}</a>
         </div>
     </li>
     {% endfor %}
 </ul>
 {% else %}
-<p>No customers yet.</p>
+<p>{{ _("No customers yet.") }}</p>
 {% endif %}
 
-<h3 class="mt-4">Recent Activities</h3>
+<h3 class="mt-4">{{ _("Recent Activities") }}</h3>
 
 <!-- Dropdown to select how many recent activities to show -->
 <form method="get" class="mb-3">
-    <label for="recent_limit" class="form-label">Show last:</label>
+    <label for="recent_limit" class="form-label">{{ _("Show last:") }}</label>
     <select name="recent_limit" id="recent_limit" class="form-select w-auto d-inline" onchange="this.form.submit()">
         {% for n in [5,10,15,20,30] %}
             <option value="{{ n }}" {% if n == recent_limit %}selected{% endif %}>{{ n }}</option>
@@ -41,17 +41,80 @@
 {% if activities %}
 <ul class="list-group rounded-0">
     {% for act in activities %}
-    <li class="list-group-item">
-        <strong>{{ act.customer.name }}</strong> - {{ act.text }}
-        <br>
-        <small class="text-muted">
-            Added by {{ act.creator.username }} at {{ act.timestamp.strftime('%Y-%m-%d %H:%M') }}
-        </small>
+    <li class="list-group-item rounded-0 d-flex justify-content-between align-items-center" id="activity-{{ act.id }}">
+        <!-- Activity Text -->
+        <div class="activity-text flex-grow-1">
+            <span class="text-content">
+                <strong>{{ act.customer.name }}</strong> — {{ act.text }}<br>
+                <small class="text-muted">{{ _("Added by") }} {{ act.creator.username }} {{ _("at") }} {{ act.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+            </span>
+        </div>
+
+        <!-- Edit/Delete Buttons -->
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-primary btn-sm rounded-0 edit-btn">{{ _("Edit") }}</button>
+            <a href="{{ url_for('main.delete_activity', activity_id=act.id) }}" 
+               class="btn btn-outline-danger btn-sm rounded-0" onclick="return confirm('{{ _('Are you sure?') }}');">{{ _("Delete") }}</a>
+        </div>
+
+        <!-- Inline Edit Form -->
+        <div class="inline-edit-form d-none d-flex justify-content-between align-items-center w-100 mt-2">
+            <input type="text" name="text" class="form-control form-control-sm flex-grow-1 rounded-0" value="{{ act.text }}" required>
+            <div class="d-flex gap-1 ms-2">
+                <button type="button" class="btn btn-success btn-sm rounded-0 save-btn" data-id="{{ act.id }}">{{ _("Save") }}</button>
+                <button type="button" class="btn btn-secondary btn-sm rounded-0 cancel-btn">{{ _("Cancel") }}</button>
+            </div>
+        </div>
     </li>
     {% endfor %}
 </ul>
-<a href="{{ url_for('main.activities') }}" class="btn btn-primary mt-3 rounded-0">View All Activities</a>
+
+<a href="{{ url_for('main.activities') }}" class="btn btn-primary mt-3 rounded-0">{{ _("View All Activities") }}</a>
+
 {% else %}
-<p>No recent activities.</p>
+<p>{{ _("No recent activities.") }}</p>
 {% endif %}
+
+<!-- Inline Editing JavaScript -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll(".edit-btn").forEach(btn => {
+        btn.addEventListener("click", function() {
+            const li = btn.closest("li");
+            li.querySelector(".text-content").classList.add("d-none");
+            li.querySelector(".d-flex.gap-2").classList.add("d-none");
+            li.querySelector(".inline-edit-form").classList.remove("d-none");
+        });
+    });
+
+    document.querySelectorAll(".cancel-btn").forEach(btn => {
+        btn.addEventListener("click", function() {
+            const li = btn.closest("li");
+            li.querySelector(".text-content").classList.remove("d-none");
+            li.querySelector(".d-flex.gap-2").classList.remove("d-none");
+            li.querySelector(".inline-edit-form").classList.add("d-none");
+        });
+    });
+
+    document.querySelectorAll(".save-btn").forEach(btn => {
+        btn.addEventListener("click", function() {
+            const li = btn.closest("li");
+            const formData = new FormData();
+            const text = li.querySelector("input[name='text']").value;
+            formData.append("text", text);
+
+            fetch(`/edit_activity/${btn.dataset.id}`, {
+                method: "POST",
+                body: formData,
+            }).then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert("{{ _('Error updating activity') }}");
+                }
+            });
+        });
+    });
+});
+</script>
 {% endblock %}
