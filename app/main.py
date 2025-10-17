@@ -233,8 +233,8 @@ def add_customer():
     if request.method == "POST":
         name = request.form["name"]
         email = request.form["email"]
-        phone = request.form.get("phone") or "0000 000 000"
-        address = request.form.get("address") or "Unknown"
+        phone = request.form.get("phone")
+        address = request.form.get("address")
 
         if not name:
             flash("Name field is required!")
