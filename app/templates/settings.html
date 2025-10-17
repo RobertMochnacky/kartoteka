@@ -1,37 +1,37 @@
 {% extends "base.html" %}
-{% block title %}Settings{% endblock %}
+{% block title %}{{ _("Settings") }}{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
   <div class="row">
     <div class="col-md-8 mx-auto">
-      <h2 class="mb-4"><i class="bi bi-gear-fill me-2"></i>Settings</h2>
+      <h2 class="mb-4"><i class="bi bi-gear-fill me-2"></i>{{ _("Settings") }}</h2>
 
       <!-- Appearance Settings -->
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-white fw-semibold">
-          <i class="bi bi-palette me-2 text-primary"></i>Appearance
+          <i class="bi bi-palette me-2 text-primary"></i>{{ _("Appearance") }}
         </div>
         <div class="card-body">
           <div class="form-check form-switch mb-3">
             <input class="form-check-input" type="checkbox" id="darkModeToggle">
-            <label class="form-check-label" for="darkModeToggle">Enable dark mode</label>
+            <label class="form-check-label" for="darkModeToggle">{{ _("Enable dark mode") }}</label>
           </div>
 
           <div class="mb-3">
-            <label for="accentColor" class="form-label">Accent color</label>
+            <label for="accentColor" class="form-label">{{ _("Accent color") }}</label>
             <input type="color" id="accentColor" class="form-control form-control-color"
                    title="Choose your accent color" value="{{ current_user.primary_color or '#3a86ff' }}">
           </div>
 
           <div class="mb-3">
-            <label for="sidebarColor" class="form-label">Sidebar background</label>
+            <label for="sidebarColor" class="form-label">{{ _("Sidebar background") }}</label>
             <input type="color" id="sidebarColor" class="form-control form-control-color"
                    title="Choose your sidebar background color" value="{{ current_user.sidebar_bg_color or '#fff' }}">
           </div>
 
           <div class="mb-3">
-            <label for="textColor" class="form-label">Text color</label>
+            <label for="textColor" class="form-label">{{ _("Text color") }}</label>
             <input type="color" id="textColor" class="form-control form-control-color"
                    title="Choose your text color" value="{{ current_user.text_color or '#212529' }}">
           </div>
@@ -41,19 +41,19 @@
       <!-- User Account Settings -->
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-white fw-semibold">
-          <i class="bi bi-person-circle me-2 text-primary"></i>Account
+          <i class="bi bi-person-circle me-2 text-primary"></i>{{ _("Account") }}
         </div>
         <div class="card-body">
-          <p><strong>Username:</strong> {{ current_user.username }}</p>
-          <p><strong>Email:</strong> {{ current_user.email }}</p>
+          <p><strong>{{ _("Username:") }}</strong> {{ current_user.username }}</p>
+          <p><strong>{{ _("Email:") }}</strong> {{ current_user.email }}</p>
           <hr>
-          <p class="text-muted">Account management features coming soon (e.g., password change, profile picture, etc.).</p>
+          <p class="text-muted">{{ _("Account management features coming soon (e.g., password change, profile picture, etc.).") }}</p>
         </div>
       </div>
 
       <!-- Save Settings -->
       <button id="saveSettings" class="btn btn-primary">
-        <i class="bi bi-save me-1"></i> Save Preferences
+        <i class="bi bi-save me-1"></i> {{ _("Save Preferences") }}
       </button>
     </div>
   </div>
