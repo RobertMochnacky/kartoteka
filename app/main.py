@@ -394,24 +394,34 @@ def import_customers():
                 phone = str(row.get("Phone", "")).strip()
                 address = str(row.get("Address", "")).strip()
 
-                # Skip rows with no valid email
-                if not email or email.lower() in ["nan", "none"]:
-                    skipped_count += 1
-                    continue
+                # Clean invalid values
+                for field in ["email", "phone", "address"]:
+                    value = locals()[field]
+                    if value.lower() in ["nan", "none", "null", ""]:
+                        locals()[field] = ""
 
-                # Skip if customer already exists
+                # Assign unique placeholder if email missing
+                if not email:
+                    email = f"noemail-{uuid.uuid4().hex[:8]}@placeholder.local"
+
+                # Generate placeholder phone/address if missing
+                if not phone:
+                    phone = f"000-{uuid.uuid4().hex[:4]}"
+                if not address:
+                    address = _("No address provided")
+
+                # Skip if this email (including placeholder) already exists
                 existing = Customer.query.filter_by(email=email).first()
                 if existing:
                     skipped_count += 1
                     continue
 
-                # Clean up NaN or placeholder values
-                if phone.lower() == "nan":
-                    phone = ""
-                if address.lower() == "nan":
-                    address = ""
-
-                customer = Customer(name=name, email=email, phone=phone, address=address)
+                customer = Customer(
+                    name=name or _("Unnamed Customer"),
+                    email=email,
+                    phone=phone,
+                    address=address,
+                )
                 db.session.add(customer)
                 added_count += 1
 
