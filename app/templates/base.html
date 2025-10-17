@@ -92,6 +92,21 @@
     body.dark-mode .toggle-btn { color: var(--text-light); }
     .form-switch .form-check-input { cursor: pointer; }
     .alert { margin-bottom: 15px; }
+
+    /* Card header matches sidebar background */
+    .card-header {
+      background-color: var(--sidebar-bg-light);
+      color: var(--text-dark);
+      border-bottom: 1px solid #ddd;
+    }
+    
+    /* Dark mode variant */
+    body.dark-mode .card-header {
+      background-color: var(--sidebar-bg-dark);
+      color: var(--text-light);
+      border-bottom: 1px solid #444;
+    }
+    
   </style>
 </head>
 
