@@ -88,6 +88,13 @@
 
     .btn-primary { background-color: var(--primary-color); border: none; color: #fff; }
     .btn-primary:hover { background-color: var(--primary-color); opacity: 0.85; }
+    .btn-primary.rounded-0,
+    .btn-secondary.rounded-0 {
+      padding: 0.5rem 1rem !important;
+      font-size: 1rem !important;
+      border-width: 1px !important;
+    }
+    
     .toggle-btn { border: none; background: none; color: var(--text-dark); font-size: 1.3rem; cursor: pointer; margin-right: 15px; transition: color 0.3s ease; }
     body.dark-mode .toggle-btn { color: var(--text-light); }
     .form-switch .form-check-input { cursor: pointer; }
