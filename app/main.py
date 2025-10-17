@@ -10,6 +10,7 @@ import pandas as pd
 from werkzeug.utils import secure_filename
 import os
 from flask_babel import _
+import uuid
 
 main_bp = Blueprint("main", __name__)
 
