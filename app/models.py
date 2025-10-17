@@ -40,6 +40,8 @@ class Activity(db.Model):
     customer_id = db.Column(db.Integer, db.ForeignKey("customers.id"), nullable=False)
     creator_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    price = db.Column(db.Float, default=0.0)
 
-    customer = db.relationship("Customer", back_populates="activities")
-    creator = db.relationship("User")
+    # Relationships
+    customer = db.relationship("Customer", backref=db.backref("activities", lazy=True))
+    creator = db.relationship("User", backref=db.backref("activities", lazy=True))
