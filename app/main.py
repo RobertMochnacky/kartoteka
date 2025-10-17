@@ -9,6 +9,7 @@ import csv
 import pandas as pd
 from werkzeug.utils import secure_filename
 import os
+from flask_babel import _
 
 main_bp = Blueprint("main", __name__)
 
@@ -388,7 +389,7 @@ def import_customers():
             added_count = 0
             skipped_count = 0
 
-            for _, row in df.iterrows():
+            for idx, row in df.iterrows():  # ✅ renamed from "_"
                 name = str(row.get("Name", "")).strip()
                 email = str(row.get("Email", "")).strip().lower()
                 phone = str(row.get("Phone", "")).strip()
@@ -400,17 +401,15 @@ def import_customers():
                     if value.lower() in ["nan", "none", "null", ""]:
                         locals()[field] = ""
 
-                # Assign unique placeholder if email missing
+                # Assign unique placeholders
                 if not email:
                     email = f"noemail-{uuid.uuid4().hex[:8]}@placeholder.local"
-
-                # Generate placeholder phone/address if missing
                 if not phone:
                     phone = f"000-{uuid.uuid4().hex[:4]}"
                 if not address:
                     address = _("No address provided")
 
-                # Skip if this email (including placeholder) already exists
+                # Skip duplicates
                 existing = Customer.query.filter_by(email=email).first()
                 if existing:
                     skipped_count += 1
@@ -427,11 +426,13 @@ def import_customers():
 
             db.session.commit()
 
+            # ✅ Babel-safe flash message
             flash(
                 _("Customers imported successfully — %(added)d added, %(skipped)d skipped.",
                   added=added_count, skipped=skipped_count),
                 "success"
             )
+
             return redirect(url_for("main.customers"))
 
     return render_template("import_customers.html")
