@@ -43,5 +43,8 @@ class Activity(db.Model):
     price = db.Column(db.Float, default=0.0)
 
     # Relationships
-    customer = db.relationship("Customer", backref=db.backref("activities", lazy=True))
-    creator = db.relationship("User", backref=db.backref("activities", lazy=True))
+    customer = db.relationship("Customer", back_populates="activities")
+    creator = db.relationship("User")
+
+
+    
