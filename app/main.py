@@ -438,7 +438,11 @@ def import_customers():
                     customer.address = address or customer.address
 
             db.session.commit()
-            flash(_("Customers imported successfully —") {added_count} _("added"), {skipped_count} _("skipped."), "success")
+            flash(
+                _("Customers imported successfully — %(added)d added, %(skipped)d skipped.", 
+                  added=added_count, skipped=skipped_count),
+                "success"
+            )
             return redirect(url_for("main.customers"))
 
     return render_template("import_customers.html")
