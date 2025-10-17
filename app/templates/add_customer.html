@@ -13,12 +13,12 @@
         <form method="POST" action="{{ url_for('main.add_customer') }}">
             <div class="form-group">
                 <label for="name">{{ _("Customer Name") }}</label>
-                <input type="text" class="form-control rounded-0" id="name" name="name" required>
+                <input type="text" class="form-control rounded-0" id="name" name="name" placeholder="Meno a priezvisko" required>
             </div>
 
             <div class="form-group mt-2">
                 <label for="email">{{ _("Email") }}</label>
-                <input type="email" class="form-control rounded-0" id="email" name="email" required>
+                <input type="email" class="form-control rounded-0" id="email" name="email" placeholder="zakaznik@email.sk">
             </div>
 
             <div class="form-group mt-2">
