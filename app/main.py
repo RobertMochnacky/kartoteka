@@ -264,7 +264,7 @@ def edit_customer(customer_id):
         customer.phone = request.form.get("phone") or "0000 000 000"
         customer.address = request.form.get("address") or "Unknown"
         db.session.commit()
-        flash("Customer updated!")
+        flash({{ _("Customer updated!") }})
         return redirect(url_for("main.view_customer", customer_id=customer.id))
 
     return render_template("edit_customer.html", customer=customer)
@@ -275,8 +275,8 @@ def delete_customer(customer_id):
     customer = Customer.query.get_or_404(customer_id)
     db.session.delete(customer)
     db.session.commit()
-    flash("Customer deleted!")
-    return redirect(url_for("main.dashboard"))
+    flash({{ _("Customer deleted!") }})
+    return redirect(url_for("main.customers"))
 
 @main_bp.route("/search_customers")
 @login_required
