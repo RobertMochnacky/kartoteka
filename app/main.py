@@ -206,7 +206,7 @@ def customers():
     query = Customer.query
     if search_query:
         query = query.filter(
-            orgettext(
+            gettext(
                 Customer.name.ilike(f"%{search_query}%"),
                 Customer.email.ilike(f"%{search_query}%"),
                 Customer.phone.ilike(f"%{search_query}%")
