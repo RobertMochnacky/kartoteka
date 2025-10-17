@@ -1,13 +1,13 @@
 {% extends "base.html" %}
-{% block title %}Import Customers{% endblock %}
+{% block title %}{{ _("Import Customers") }}{% endblock %}
 {% block content %}
-<h2>Import Customers</h2>
+<h2>{{ _("Import Customers") }}</h2>
 <form method="post" enctype="multipart/form-data">
     <div class="mb-3">
-        <label for="file" class="form-label">CSV File</label>
+        <label for="file" class="form-label">{{ _("CSV File") }}</label>
         <input type="file" name="file" id="file" class="form-control" accept=".csv" required>
     </div>
-    <button type="submit" class="btn btn-primary rounded-0">Import</button>
-    <a href="{{ url_for('main.customers') }}" class="btn btn-secondary rounded-0">Back</a>
+    <button type="submit" class="btn btn-primary rounded-0">{{ _("Import") }}</button>
+    <a href="{{ url_for('main.customers') }}" class="btn btn-secondary rounded-0">{{ _("Back") }}</a>
 </form>
 {% endblock %}
