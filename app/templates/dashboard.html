@@ -6,7 +6,7 @@
 
 <h3 class="mt-4">Recent Customers</h3>
 {% if customers %}
-<ul class="list-group mb-4">
+<ul class="list-group mb-4 rounded-0">
     {% for customer in customers %}
     <li class="list-group-item d-flex justify-content-between align-items-center">
         <!-- Customer Info -->
@@ -40,7 +40,7 @@
 </form>
 
 {% if activities %}
-<ul class="list-group">
+<ul class="list-group rounded-0">
     {% for act in activities %}
     <li class="list-group-item">
         <strong>{{ act.customer.name }}</strong> - {{ act.text }}
@@ -51,7 +51,7 @@
     </li>
     {% endfor %}
 </ul>
-<a href="{{ url_for('main.activities') }}" class="btn btn-primary mt-3">View All Activities</a>
+<a href="{{ url_for('main.activities') }}" class="btn btn-primary mt-3 rounded-0">View All Activities</a>
 {% else %}
 <p>No recent activities.</p>
 {% endif %}
