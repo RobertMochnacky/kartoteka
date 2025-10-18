@@ -83,6 +83,7 @@
 <ul class="list-group rounded-0">
     {% for act in activities %}
     <li class="list-group-item d-flex justify-content-between align-items-center rounded-0" id="activity-{{ act.id }}">
+        
         <!-- Left side: Customer + Activity text -->
         <div class="flex-grow-1 d-flex flex-column">
             <span class="text-content fw-semibold">
@@ -103,10 +104,15 @@
             </div>
         </div>
 
-        <!-- Right side: Added by ... and Price -->
-        <div class="d-flex align-items-center gap-3 text-end flex-shrink-0">
-            <small class="text-muted">{{ _("Added by") }} {{ act.creator.username }} {{ _("at") }} {{ act.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
-            <span class="fw-bold border-start ps-3">{{ _("Price:") }} {{ "%.2f"|format(act.price or 0.0) }}</span>
+        <!-- Center-right: Added by ... -->
+        <div class="text-muted text-end small me-3" style="min-width: 220px;">
+            {{ _("Added by") }} {{ act.creator.username }} {{ _("at") }} {{ act.timestamp.strftime('%Y-%m-%d %H:%M') }}
+        </div>
+
+        <!-- Fixed-width Price column -->
+        <div class="text-center fw-bold flex-shrink-0 border-start ps-3"
+             style="width: 120px; min-width: 120px;">
+            {{ _("Price:") }} {{ "%.2f"|format(act.price or 0.0) }}
         </div>
 
         <!-- Edit/Delete Buttons -->
