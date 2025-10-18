@@ -106,7 +106,7 @@
         <!-- Right side: Added by ... and Price -->
         <div class="d-flex align-items-center gap-3 text-end flex-shrink-0">
             <small class="text-muted">{{ _("Added by") }} {{ act.creator.username }} {{ _("at") }} {{ act.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
-            <span class="fw-bold border-start ps-3">{{ "%.2f"|format(act.price or 0.0) }}</span>
+            <span class="fw-bold border-start ps-3">{{ _("Price:") }} {{ "%.2f"|format(act.price or 0.0) }}</span>
         </div>
 
         <!-- Edit/Delete Buttons -->
@@ -169,7 +169,7 @@ document.addEventListener("DOMContentLoaded", function() {
                           `${data.customer_name} — ${data.text}`;
                       li.querySelector(".text-content").classList.remove("d-none");
                       li.querySelector(".inline-edit-form").classList.add("d-none");
-                      li.querySelector(".text-end span").textContent = parseFloat(data.price).toFixed(2);
+                      li.querySelector(".border-start").textContent = `{{ _("Price:") }} ${parseFloat(data.price).toFixed(2)}`;
                   } else {
                       alert(data.message);
                   }
