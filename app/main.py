@@ -445,9 +445,9 @@ def import_customers():
 
                 # ✅ If all are empty, generate unique placeholder values
                 if not email:
-                    email = f"placeholder_{uuid.uuid4().hex[:8]}@example.com"
+                    email = f"email_{uuid.uuid4().hex[:8]}@email.com"
                 if not phone:
-                    phone = f"000-{uuid.uuid4().hex[:4]}"
+                    phone = f"09XX-{uuid.uuid4().hex[:4]}"
                 if not address:
                     address = f"Unknown Address {uuid.uuid4().hex[:4]}"
 
